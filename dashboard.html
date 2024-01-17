@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet" />
+
+        <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+
+        <link  rel="stylesheet" type="text/css" href="./css/sidemenu.css"/>
+        <link  rel="stylesheet" type="text/css" href="./css/main.css"/>
+        <link  rel="stylesheet" type="text/css" href="./css/modal.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
+        <link rel="stylesheet" href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css">
+
+        <title>Dashboard</title>
+        
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        
+</head>
+<body>
+    <header>
+        <div id="sidemenu" class="menu-collapsed">
+            <div id="headerside">
+                <div class="logo"><img src="img/v105_460.png" id="image"></div>
+                <div id="title"><span>DataWala</span></div>
+                <div id="menu-btn">
+                    <div class="btn-hamburguer"></div>
+                    <div class="btn-hamburguer"></div>
+                    <div class="btn-hamburguer"></div>
+                </div>
+            </div>
+            <div id="menu-items">
+                <div class="item">
+                    <a href="#">
+                        <div class="icon"><img src="svg/dashboard.svg" alt=""></div>
+                        <div class="title"><span>Dashboard</span></div>
+                    </a>
+                </div>
+                <div class="item">
+                    <a href="#">
+                        <div class="icon"><img src="svg/exportar.svg" alt=""></div>
+                        <div class="title"><span>Exportar reporte</span></div>
+                    </a>
+                </div>
+                <div class="item">
+                    <a href="#" class="hero__cta">
+                        <div class="icon"><img src="svg/import_data.svg" alt=""></div>
+                        <div class="title"><span>Importar data</span></div>
+                    </a>
+                </div>
+                <div class="item">
+                    <a href="#">
+                        <div class="icon"><img src="svg/gestiondb.svg" alt=""></div>
+                        <div class="title"><span>Gestionar BD</span></div>
+                    </a>
+                </div>
+                <div class="item">
+                    <a href="#">
+                        <div class="icon"><img src="svg/orga_dashboard.svg" alt=""></div>
+                        <div class="title"><span>Organizar dashboard</span></div>
+                    </a>
+                </div>
+                <div class="item">
+                    <a href="#">
+                        <div class="icon"><img src="svg/configuracion.svg" alt=""></div>
+                        <div class="title"><span>Configuracion</span></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-container">
+            <div id="barra-nav">
+            <nav>
+                <h1>Unidades Tecnologicas de Santander</h1>
+                <ul>
+                    <div class="box_icon">
+                        <button type="submit" class="notificacion"></button>
+                    </div>
+                </ul>
+            </nav>
+        </div>    
+    </header>
+
+    <div class="opfavo">
+        <span class="v78_467">Operaciones Favoritas</span>
+        <div class="v121_59">
+    <div class="v105_374"><a href="#" class="hero__cta">
+        <div class="v78_469">
+            <span class="v78_470">Gestionar bases de datos </span>
+            <span class="v78_471">Modifica y organiza los datos.</span>
+        </div>
+        <div class="v105_371">
+            <div class="v78_474">
+        </div>
+    </div>
+    </a>
+    </div>
+<a href="#" class="hero__cta"><div class="v105_375">
+        <div class="v123_3">
+        <div class="v78_483">
+            <span class="v78_484">Importar a la base de datos</span>
+            <span class="v78_485">Añade nueva data.</span></div>
+            <div class="v105_370">
+                <div class="v78_488">
+                    <div class="v78_489">
+                </div>
+            </div>
+        </div>
+    </div>
+    </div></a>
+    <a href="reportes"> <div class="v105_376">
+        <div class="v78_477">
+            <span class="v78_478">Reportes</span>
+            <span class="v78_479">Exportar reportes de análisis.</span>
+        </div><div class="v105_372">
+            <div class="v78_493">
+            </div>
+        </div>
+    </div></a>
+    </div>
+    </div>
+
+<!--
+----------- MODAL ------------
+<div style="height: 150px; overflow: hidden;" class="hero__waves" ><svg viewBox="0 0 500 150" preserveAspectRatio="none" style="height: 100%; width: 100%;"><path d="M0.00,49.99 C262.08,217.40 378.89,-120.09 500.00,49.99 L500.00,150.00 L0.00,150.00 Z" style="stroke: none; fill: #fff;"></path></svg></div>
+
+-->
+
+
+<section class="modal ">
+    <div class="modal__container">
+        
+            <button id="cerrar" class="modal__close"></button>
+        
+        
+        <div id="contentform">
+            <section id="pantalla-dividida">
+            <div class="contact-form">
+                <div>
+                    <form action="">
+                        <div id="drag-area">
+                            <h2>Arrastra y suelta el archivo</h2>
+                            <span>o</span>
+                            <button id="select">Selecciona el archivo</button>
+                            <select name="departamento" id="departamento">
+                                <option value="ventas">ventas</option>
+
+                            </select>
+                            <input type="file" name="" id="input-file" hidden />
+                            
+                        </div>
+                        <div id="preview"></div>
+                        <button onclick="enviarArchivo()">CARGAR ARCHIVOS</button>
+                    </form>
+                </div>
+                
+            </div>
+            <div class="contact-info">
+                <form action="#">
+                <table id="example" class="display" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>First name</th>
+                            <th>Last name</th>
+                            <th>Position</th>
+                            <th>Office</th>
+                            <th width="18%">Start date</th>
+                            <th>Salary</th>
+                        </tr>
+                    </thead>
+                </table>
+                <button type="submit" class="cargar">Cargar</button>
+            </form>
+            </div>
+        
+        </section>
+      
+        </div>
+        
+        
+
+    </div>
+</section>
+
+<!--
+---------- JAVASCRIPT ----------
+-->
+
+    <script src="js/main.js"></script>
+    <script src="js/modal.js"></script>
+</body>
+
+</html>
