@@ -8,176 +8,123 @@ const btn = document.querySelector('#menu-btn');
             document.querySelector('body').classList.toggle('body-expanded');
     });
 
+const globalData = []  ;
+
+
+function habilitarBoton() {
+        // Obtén el input de tipo file y el botón
+        var archivoInput = document.getElementById('file-3');
+        var botonCargar = document.getElementById('botonCargar');
+      
+        // Habilita el botón si se ha seleccionado un archivo
+        botonCargar.disabled = !archivoInput.value;
+      }
+
     //CARGAR ARCHIVOS
 
-   async function enviarArchivo() {
+async function enviarArchivo() {
         var formData = new FormData();
-        var archivoCapturado = document.getElementById('input-file');
+        var archivoCapturado = document.getElementById('file-3');
         var departamento = document.getElementById('departamento');
         formData.append('Archivo', archivoCapturado.files[0]);
         formData.append('Departamento', departamento.value);
 
         $.ajax({
             url: 'https://localhost:7132/api/ETL/ProbarExtraccionExcel', // Reemplaza '/api/tu-endpoint' con la URL de tu endpoint en ASP.NET
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (data) {
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (data) {
                 console.log('Archivo enviado correctamente', data);
-            },
-            error: function (error) {
+                globalData.push(JSON.parse(data.objetoCreado));
+                MostrarDatos();
+        },
+        error: function (error) {
                 
                 console.error('Error al enviar el archivo', error.responseText);
-            }
+        }
         });
-    }
+}
+function MostrarDatos(){
+        // Obtén la tabla y el cuerpo de la tabla
+        var tabla = $('#tablaDatos');
+        var llaves = Object.keys(globalData[0].Datos[0]);
+        var filaCabecera = tabla[0].tHead.insertRow();
 
+        // Itera sobre las llaves e agrega celdas a la fila de cabecera
+        llaves.forEach(function(llave) {
+          var celda = document.createElement('td');
+          celda.textContent = llave;
+          filaCabecera.appendChild(celda);
+        });
+        // Llena la tabla con los datos
+        $.each(globalData[0].Datos, function (index, item) {
+          var row = $('<tr>');
+          row.append($('<td contenteditable="true">').text(item.name));
+          row.append($('<td contenteditable="true">').text(item.lastname));
+          row.append($('<td contenteditable="true">').text(item.phone));
+          tabla.append(row);
+        });
+
+        var tabla = $('#tablaDatos').DataTable();
+
+   // Habilitar la edición para la columna con la clase "editable"
+   $('#tablaDatos').on('click', 'tr[contenteditable="true"]', function () {
+        $(this).attr('contenteditable', 'true').focus();
+      });
+
+ // Deshabilitar la edición al hacer clic fuera de la celda
+ $('#tablaDatos').on('blur', 'td[contenteditable="true"]', function() {
+        $(this).attr('contenteditable', 'false');
+        // Aquí puedes agregar lógica para guardar los cambios en tu backend
+        // Puedes acceder al valor modificado usando $(this).text()
+      });
+
+      };
+
+    
+  
 
 // TABLA
 
-//     const editor = new DataTable.Editor({
-//         ajax: '../php/staff.php',
-//         fields: [
-//             {
-//                 label: 'First name:',
-//                 name: 'first_name'
-//             },
-//             {
-//                 label: 'Last name:',
-//                 name: 'last_name'
-//             },
-//             {
-//                 label: 'Position:',
-//                 name: 'position'
-//             },
-//             {
-//                 label: 'Office:',
-//                 name: 'office'
-//             },
-//             {
-//                 label: 'Extension:',
-//                 name: 'extn'
-//             },
-//             {
-//                 label: 'Start date:',
-//                 name: 'start_date',
-//                 type: 'datetime'
-//             },
-//             {
-//                 label: 'Salary:',
-//                 name: 'salary'
-//             }
-//         ],
-//         table: '#example'
-//     });
-     
-//     const table = new DataTable('#example', {
-//         ajax: '#',
-//         buttons: [
-//             { extend: 'create', editor },
-//             { extend: 'edit', editor },
-//             { extend: 'remove', editor }
-//         ],
-//         columns: [
-//             {
-//                 data: null,
-//                 defaultContent: '',
-//                 className: 'select-checkbox',
-//                 orderable: false
-//             },
-//             { data: 'first_name' },
-//             { data: 'last_name' },
-//             { data: 'position' },
-//             { data: 'office' },
-//             { data: 'start_date' },
-//             { data: 'salary', render: DataTable.render.number(null, null, 0, '$') }
-//         ],
-//         dom: 'Bfrtip',
-//         order: [[1, 'asc']],
-//         select: {
-//             style: 'os',
-//             selector: 'td:first-child'
-//         }
-//     });
-     
-//     // Activate an inline edit on click of a table cell
-//     table.on('click', 'tbody td:not(:first-child)', function (e) {
-//         editor.inline(this);
-//     });
 
 
     //FUNCION SUBIR ARCHIVOS
 
-const dropArea = document.querySelector("#drag-area");
-const dragText = dropArea.querySelector('h2')
-const button = dropArea.querySelector('#select');
-const input = dropArea.querySelector('#input-file');
-let files;
 
-button.addEventListener('click', (e) => {
-        input.click();
-});
+//SUBIR ARCHIVO
 
-input.addEventListener('change', (e) =>{
-        files = input.files;
-        dropArea.classList.add('active');
-        showFiles(files);
-        dropArea.classList.remove('active');
-});
+'use strict';
 
-dropArea.addEventListener('dragover', (e) =>{
-        e.preventDefault();
-        dropArea.classList.add('active');
-        dragText.textContent = 'Suelta para cargar los archivos'
-});
-dropArea.addEventListener('dragleave', (e) =>{
-        e.preventDefault();
-        dropArea.classList.remove('active');
-        dragText.textContent = 'Arrastra y suelta el archivos'
-});
-dropArea.addEventListener('drop', (e) =>{
-        e.preventDefault();
-        files = e.dataTransfer.files;
-        showFiles(files);
-        dropArea.classList.remove('active');
-        dragText.textContent = 'Arrastra y suelta el archivos'
-});
+;( function ( document, window, index )
+{
+	var inputs = document.querySelectorAll( '.inputfile' );
+	Array.prototype.forEach.call( inputs, function( input )
+	{
+		var label	 = input.nextElementSibling,
+			labelVal = label.innerHTML;
 
-function showFiles(files){
-        if(files.length = undefined){
-                processFile(files);
-        }else{
-                for(const file of files){
-                processFile(file);
-                }
-        }
-}
+		input.addEventListener( 'change', function( e )
+		{
+			var fileName = '';
+			if( this.files && this.files.length > 1 )
+				fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
+			else
+				fileName = e.target.value.split( '\\' ).pop();
 
-function processFile(file){
-        const fileReader = new FileReader();
-        const id = `file-${Math.random().toString(32).substring(7)}`;
+			if( fileName )
+				label.querySelector( 'span' ).innerHTML = fileName;
+			else
+				label.innerHTML = labelVal;
+		});
+	});
+        
+}( document, window, 0 ));
 
-        fileReader.addEventListener('load', e =>{
-                const fileUrl = fileReader.result;
-                const image = `
-                <div id="${id}" class=""file-container">
-                        </br>
-                        <img src="${fileUrl}" alt = "${file.name}" width="30px;" >
-                        <div class="estatus">
-                                <span>${file.name}</span>
-                                <span class="status-text">
-                                        loading...
-                                </span>
-                        </div>
-                </div>
-                `;
 
-                const html = document.querySelector('#preview').innerHTML;
-                document.querySelector('#preview').innerHTML = image + html ;
-        });
 
-        fileReader.readAsDataURL(file);
-        uploadFile(file, id);
 
-}
+
+
+

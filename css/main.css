@@ -3959,8 +3959,9 @@ body {
 
 .contact-form form {
   display: grid;
-  align-items: left;
+  align-items: center;
   grid-template-columns: 1fr 1fr;
+  width: 80%;
   }
 
 .contact-form form label {
@@ -3980,8 +3981,10 @@ body {
 .contact-form form input,
 .contact-form form textarea {
   width: 100%;
+  
   padding: .7em;
   border: none;
+  border-radius: 5px;
   background: none;
   outline: 0;
   color: #fff;
@@ -3992,14 +3995,14 @@ body {
   background: #2D60FF;
   border: 0;
   text-transform: uppercase;
-  padding: 1em;
+  width: 150px;
 }
 
 .contact-form form button:hover,
 .contact-form form button:focus {
-  background: #2D60FF;
+  background: #e03b77;
   color: #fff;
-  transition: background-color 1s ease-out;
+  transition: background-color .2s ease-out;
   outline: 0;
 }
 
@@ -4108,3 +4111,16 @@ body {
   color: red;
 }
 
+.inputfile-3 + label {
+  color: #2D60FF;
+}
+
+.inputfile-3:focus + label,
+.inputfile-3.has-focus + label,
+.inputfile-3 + label:hover {
+  color: #e03b77;
+}
+
+#cargar{
+  padding: 5px;
+}
