@@ -46,6 +46,39 @@ async function enviarArchivo() {
         }
         });
 }
+
+async function guardarDataEnDataLake() {
+    try {
+        // Muestra la rueda de carga aquí
+
+       
+
+        // Espera a que la promesa se resuelva
+        await $.ajax({
+            url: 'https://localhost:7132/api/ETL/CargarObjetos',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(globalData[0]),
+        });
+
+        // Oculta la rueda de carga aquí
+
+        console.log('Archivo enviado correctamente');
+
+    } catch (error) {
+        // Oculta la rueda de carga aquí
+
+        const errorMessage = error.responseJSON?.error || 'Error desconocido';
+        console.error('Error al enviar el archivo', errorMessage);
+    }
+}
+
+
+
+
+
+
+
 function MostrarDatos(){
         // Obtén la tabla y el cuerpo de la tabla
         var tabla = $('#tablaDatos');
@@ -59,13 +92,19 @@ function MostrarDatos(){
           filaCabecera.appendChild(celda);
         });
         // Llena la tabla con los datos
-        $.each(globalData[0].Datos, function (index, item) {
-          var row = $('<tr>');
-          row.append($('<td contenteditable="true">').text(item.name));
-          row.append($('<td contenteditable="true">').text(item.lastname));
-          row.append($('<td contenteditable="true">').text(item.phone));
-          tabla.append(row);
-        });
+        $.each(globalData[0].Datos, function (index, rowData) {
+                var row = $('<tr>');
+                
+                // Iterar sobre las propiedades de cada objeto y agregar celdas a la fila
+                for (var key in rowData) {
+                    if (rowData.hasOwnProperty(key)) {
+                        row.append($('<td contenteditable="true">').text(rowData[key]));
+                    }
+                }
+                
+                // Agregar la fila a la tabla
+                tabla.append(row);
+            });
 
         var tabla = $('#tablaDatos').DataTable();
 
