@@ -22,30 +22,50 @@ function habilitarBoton() {
 
     //CARGAR ARCHIVOS
 
-async function enviarArchivo() {
-        var formData = new FormData();
-        var archivoCapturado = document.getElementById('file-3');
-        var departamento = document.getElementById('departamento');
-        formData.append('Archivo', archivoCapturado.files[0]);
-        formData.append('Departamento', departamento.value);
+// Asegúrate de incluir la librería Toastr en tu proyecto
 
-        $.ajax({
-            url: 'https://localhost:7132/api/ETL/ProbarExtraccionExcel', // Reemplaza '/api/tu-endpoint' con la URL de tu endpoint en ASP.NET
+async function enviarArchivo() {
+    // Mostrar el spinner mientras se envía la solicitud
+    var spinner = new Spinner().spin(document.body);
+
+    var formData = new FormData();
+    var archivoCapturado = document.getElementById('file-3');
+    var departamento = document.getElementById('departamento');
+    formData.append('Archivo', archivoCapturado.files[0]);
+    formData.append('Departamento', departamento.value);
+
+    $.ajax({
+        url: 'https://localhost:7132/api/ETL/ProbarExtraccionExcel',
         type: 'POST',
         data: formData,
         contentType: false,
         processData: false,
+        beforeSend: function () {
+            // Se ejecuta antes de enviar la solicitud
+            spinner.spin(document.body);
+        },
         success: function (data) {
-                console.log('Archivo enviado correctamente', data);
-                globalData.push(JSON.parse(data.objetoCreado));
-                MostrarDatos();
+            globalData.push(JSON.parse(data.objetoCreado));
+            toastr.success("Data Extraida correctamente");
+            MostrarDatos();
         },
         error: function (error) {
-                
-                console.error('Error al enviar el archivo', error.responseText);
+            console.error('Error al enviar el archivo', error.responseText);
+
+            // Verificar si el código de estado es 412 (Precondition Failed)
+            if (error.status === 412) {
+                // Mostrar un toast de error utilizando Toastr
+                toastr.error(error.responseJSON.error);
+            }
+        },
+        complete: function () {
+            // Se ejecuta después de que se completa la solicitud (éxito o error)
+            spinner.stop();
         }
-        });
+    });
 }
+
+
 
 async function guardarDataEnDataLake() {
     try {

@@ -4124,3 +4124,17 @@ body {
 #cargar{
   padding: 5px;
 }
+
+.toast-success {
+  background-color: #4CAF50; /* Cambia este color según tus preferencias */
+}
+
+/* Ajustar el color del texto del toast de éxito */
+.toast-success > div {
+  color: #fff; /* Cambia este color según tus preferencias */
+}
+
+/* Cambiar el color del fondo cuando se pasa el cursor sobre el toast de éxito */
+.toast-success:hover {
+  background-color: #45a049; /* Cambia este color según tus preferencias */
+}
