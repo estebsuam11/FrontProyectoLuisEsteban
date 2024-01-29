@@ -68,30 +68,30 @@ async function enviarArchivo() {
 
 
 async function guardarDataEnDataLake() {
+    // Mostrar el spinner mientras se envía la solicitud
+    var spinner = new Spinner().spin(document.body);
+
     try {
-        // Muestra la rueda de carga aquí
-
-       
-
-        // Espera a que la promesa se resuelva
-        await $.ajax({
+        var response = await $.ajax({
             url: 'https://localhost:7132/api/ETL/CargarObjetos',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(globalData[0]),
         });
-
         // Oculta la rueda de carga aquí
+        spinner.stop();
 
-        console.log('Archivo enviado correctamente');
+        toastr.success(response.message );
 
     } catch (error) {
         // Oculta la rueda de carga aquí
+        spinner.stop();
 
         const errorMessage = error.responseJSON?.error || 'Error desconocido';
-        console.error('Error al enviar el archivo', errorMessage);
+        console.error(errorMessage);
     }
 }
+
 
 
 
