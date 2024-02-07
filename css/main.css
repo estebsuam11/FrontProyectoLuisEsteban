@@ -3952,8 +3952,6 @@ body {
 
 .contact-form {
   background: #ffff;
-  width: 30%;
-  border-right: 1px solid #B1B1B1;
 
 }
 
@@ -4042,11 +4040,15 @@ body {
   color: #fff;
   background-color: #2D60FF;
   padding: 1em 3em;
-  border: 1px solid ;
+  border: 1px solid;
   border-radius: 6px;
   font-weight: 300;
   transition: background-color .2s;
+}
 
+.cargar:hover {
+  background-color: #1a4dff; /* Cambia el color de fondo al pasar el cursor por encima */
+  color: #fff; /* Cambia el color del texto al pasar el cursor por encima */
 }
 
 #drag-area{
@@ -4111,6 +4113,44 @@ body {
   color: red;
 }
 
+.container-input {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centra horizontalmente */
+}
+
+.inputfile {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.inputfile + label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-direction: column; /* Cambio a column para que el texto esté debajo */
+  padding-left: 10px; /* Espacio entre el ícono y el texto */
+}
+
+.iborrainputfile {
+  margin-left: 5px; /* Espacio entre el ícono y el texto */
+  font-size: 1.5rem; /* Tamaño del texto */
+  animation: bounce 0.5s infinite alternate; /* Aplica la animación */
+}
+
+@keyframes bounce {
+  0% {
+      transform: translateY(0); /* Estado inicial */
+  }
+  100% {
+      transform: translateY(-5px); /* Estado final */
+  }
+}
+
 .inputfile-3 + label {
   color: #2D60FF;
 }
@@ -4125,6 +4165,11 @@ body {
   padding: 5px;
 }
 
+#tablaDatos_wrapper {
+  max-width: 100%; /* Ancho máximo igual al tamaño del contenedor modal */
+  overflow-x: auto; /* Habilita el desplazamiento horizontal si es necesario */
+}
+
 .toast-success {
   background-color: #4CAF50; /* Cambia este color según tus preferencias */
 }
@@ -4137,4 +4182,13 @@ body {
 /* Cambiar el color del fondo cuando se pasa el cursor sobre el toast de éxito */
 .toast-success:hover {
   background-color: #45a049; /* Cambia este color según tus preferencias */
+}
+.custom-select {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+}
+
+.custom-select select {
+  width: 100%; /* Opcional: ajusta el ancho según sea necesario */
 }
