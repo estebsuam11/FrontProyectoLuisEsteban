@@ -1,14 +1,30 @@
-const openModal = document.querySelector('.hero__cta');
-const modal = document.querySelector('.modal');
-const closeModal = document.querySelector('.modal__close');
+// Función para abrir el modal
+function AbrirModal() {
+    const modal = document.getElementById('modalCargarDatos');
+    if (modal) {
+        modal.classList.add('modal--show');
+    }
+}
 
-openModal.addEventListener('click', (e)=>{
-    e.preventDefault();
-    modal.classList.add('modal--show');
-});
+function AbrirModalGestionBd() {
+    const modal = document.getElementById('modalGestionBd');
+    if (modal) {
+        modal.classList.add('modal--show');
+    }
+}
 
+// Función para cerrar el modal
+function CerrarModalGestionBd() {
+    const modal = document.getElementById('modalGestionBd');
+    if (modal) {
+        modal.classList.remove('modal--show');
+    }
+}
 
-closeModal.addEventListener('click', (e)=>{
-    e.preventDefault();
-    modal.classList.remove('modal--show');
-});
+// Función para cerrar el modal
+function CerrarModal() {
+    const modal = document.getElementById('modalCargarDatos');
+    if (modal) {
+        modal.classList.remove('modal--show');
+    }
+}

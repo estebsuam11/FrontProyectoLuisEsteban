@@ -10,6 +10,7 @@ const btn = document.querySelector('#menu-btn');
 
 const globalData = []  ;
 nombresColumnas=[];
+var DatosDataLake;
 
 
 function mostrarTabla() {
@@ -78,6 +79,7 @@ async function enviarArchivo() {
 async function guardarDataEnDataLake() {
     // Mostrar el spinner mientras se envía la solicitud
     var spinner = new Spinner().spin(document.body);
+    extraerInformacionDataTable();
 
     try {
         var response = await $.ajax({
@@ -99,6 +101,40 @@ async function guardarDataEnDataLake() {
         console.error(errorMessage);
     }
 }
+
+async function ObtenerDataPorDepartamento() {
+    // Mostrar el spinner mientras se envía la solicitud
+    var spinner = new Spinner().spin(document.body);
+    var departamento = document.getElementById('departamentoAGestionar').value;
+
+    try {
+        var response = await $.ajax({
+            url: 'https://localhost:7132/api/ETL/ObtenerDataPorDepartamento',
+            type: 'GET',
+            contentType: 'application/json',
+            data:{codigoDepartamento: departamento },
+        });
+        spinner.stop();
+        DatosDataLake=response;
+        toastr.success("Se ha realizado la consulta de los datos del departamento"+" "+departamento+" "+"satisfactoriamente");
+
+    } catch (error) {
+        // Oculta la rueda de carga aquí
+        spinner.stop();
+
+        const errorMessage = error.responseJSON?.error || 'Error desconocido';
+        toastr.error(errorMessage);
+    }
+
+    var ids = DatosDataLake.map(function(objeto) {
+        return objeto.id;
+    });
+
+       rellenarModalRegistros();
+       ConvertirTablasADataTables(ids);
+       mostrarGestionadorBd();
+}
+
 
 
 
@@ -193,6 +229,10 @@ function agregarBotonGuardarDatos() {
     botonGuardar.setAttribute("type", "button");
     botonGuardar.classList.add("cargar");
     botonGuardar.textContent = "Guardar Datos";
+    botonGuardar.onclick = function() {
+        guardarDataEnDataLake();
+    };
+
 
     // Agregar el botón al modal
     var modalContainer = document.querySelector(".modal__container");
@@ -247,8 +287,25 @@ function MostrarDatos(){
 
       };
 
+      
     
-  
+      function GestionarRegistrosDataWareHouse(opcion) {
+        const contenidoDerecha = document.getElementById('opfavo');
+    
+        // Limpiar el contenido anterior si es necesario
+        contenidoDerecha.innerHTML = '';
+    
+        // Lógica para cargar el contenido según la opción seleccionada
+        if (opcion === 'opcion1') {
+            contenidoDerecha.innerHTML = '<p>Contenido para la opción 1</p>';
+        } else if (opcion === 'opcion2') {
+            contenidoDerecha.innerHTML = '<p>Contenido para la opción 2</p>';
+        }
+        // Añade más casos según tus necesidades
+    
+        // Evita que el enlace redireccione a otra página
+        return false;
+    }
 
 // TABLA
 

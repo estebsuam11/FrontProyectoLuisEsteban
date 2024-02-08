@@ -105,3 +105,8 @@
     padding: 20px; /* Añade un espacio interno alrededor del área de soltar */
     margin-bottom: 20px; /* Espacio entre el borde y otros elementos */
 }
+
+#vistaGestionarDatos {
+    overflow-y: auto;
+    max-height: 700px; /* Puedes ajustar este valor según tus necesidades */
+}

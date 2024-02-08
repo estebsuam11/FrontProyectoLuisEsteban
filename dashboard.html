@@ -56,13 +56,13 @@
                     </a>
                 </div>
                 <div class="item">
-                    <a href="#" class="hero__cta">
+                    <a href="#" onclick="AbrirModal()" class="hero__cta">
                         <div class="icon"><img src="svg/import_data.svg" alt=""></div>
                         <div class="title"><span>Importar data</span></div>
                     </a>
                 </div>
                 <div class="item">
-                    <a href="#">
+                    <a href="#" onclick="AbrirModalGestionBd()">
                         <div class="icon"><img src="svg/gestiondb.svg" alt=""></div>
                         <div class="title"><span>Gestionar BD</span></div>
                     </a>
@@ -71,12 +71,6 @@
                     <a href="#">
                         <div class="icon"><img src="svg/orga_dashboard.svg" alt=""></div>
                         <div class="title"><span>Organizar dashboard</span></div>
-                    </a>
-                </div>
-                <div class="item">
-                    <a href="#">
-                        <div class="icon"><img src="svg/configuracion.svg" alt=""></div>
-                        <div class="title"><span>Configuracion</span></div>
                     </a>
                 </div>
             </div>
@@ -95,11 +89,11 @@
         </div>   
     </div>  
     </header>
-
-    <div class="opfavo">
+<div>
+    <div class="opfavo" id="opfavo">
         <span class="v78_467">Operaciones Favoritas</span>
         <div class="v121_59">
-    <div class="v105_374"><a href="#" class="hero__cta">
+    <div class="v105_374"><a href="#" onclick="AbrirModalGestionBd()" class="hero__cta">
         <div class="v78_469">
             <span class="v78_470">Gestionar bases de datos </span>
             <span class="v78_471">Modifica y organiza los datos.</span>
@@ -110,7 +104,7 @@
     </div>
     </a>
     </div>
-<a href="#" class="hero__cta">
+<a href="#" onclick="AbrirModal()" class="hero__cta">
     <div class="v105_375">
         <div class="v123_3">
         <div class="v78_483">
@@ -135,6 +129,8 @@
     </div></a>
     </div>
     </div>
+</div>
+   
 
 <!--
 ----------- MODAL ------------
@@ -143,9 +139,9 @@
 -->
 
 
-<section class="modal">
+<section id="modalCargarDatos" class="modal">
     <div class="modal__container">
-        <button id="cerrar" class="modal__close"></button>
+        <button id="cerrar" onclick="CerrarModal()" class="modal__close"></button>
         <div class="contact-form" id="cargarArchivoContainer">
             <div class="container-input" id="dropZone" ondrop="dropHandler(event)" ondragover="dragOverHandler(event)" ondragenter="dragEnterHandler(event)" ondragleave="dragLeaveHandler(event)">
                 <input type="file" id="file-3" class="inputfile inputfile-3" hidden onchange="mostrarTabla()"/>
@@ -159,6 +155,7 @@
             <label class="custom-select">
                 <select style="text-align: center;" name="departamento" id="departamento">
                     <option value="ventas">Ventas</option>
+                    <option value="marketing">Marketing</option>
                 </select>
             </label>
             <button type="button" class="cargar" hidden id="botonCargar" onclick="enviarArchivo()">CARGAR ARCHIVOS</button>
@@ -172,13 +169,44 @@
     </div>
 </section>
 
+<section id="modalGestionBd" class="modal">
+    <div class="modal__container" id="modalGestionarData">
+        <button id="cerrar" onclick="CerrarModalGestionBd()" class="modal__close"></button>
+        <div class="contact-form" id="consultarDatosContainer">
+            <div class="container-input" style="flex-direction: column !important; ">
+                <label id="file-3">
+                  <svg fill="#000000" class="iborrainputfile" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="179px" height="179px" viewBox="0 0 252.848 252.848" xml:space="preserve" stroke="#000000" stroke-width="0.0025284800000000005" transform="matrix(1, 0, 0, 1, 0, 0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g id="_x31_23_62_"> <g> <polygon points="130.834,130.588 107.724,130.588 107.724,136.814 130.834,136.814 130.834,146.01 145.834,133.092 130.834,121.402 "></polygon> <path d="M202.032,70.318c10.069,0.145,50.811-0.411,50.811-15.193c0-14.96-40.721-15.054-50.811-15.193 c-10.08,0.14-50.806,0.233-50.806,15.193S191.952,70.178,202.032,70.318z"></path> <path d="M201.961,76.063c-8.785-0.134-38.831-0.254-50.734-9.805v23.127v18.73l0.057-39.821l0.07,40.128h0.26 c12.156,9.254,41.654,9.364,50.353,9.506c8.674,0.14,38.101-0.267,50.308-9.506c0,0,0.528-0.447,0.574-0.49l-0.138-41.724 C240.808,75.782,210.746,76.208,201.961,76.063z"></path> <path d="M201.961,124.124c-8.785-0.137-38.831-0.254-50.734-9.81v23.13v18.732l0.057-39.824l0.07,40.129h0.26 c12.156,9.252,41.654,9.363,50.353,9.496c8.674,0.142,38.101-0.265,50.308-9.496c0,0,0.528-0.447,0.574-0.498l-0.138-41.72 C240.808,123.844,210.746,124.271,201.961,124.124z"></path> <path d="M201.961,171.04c-8.785-0.143-38.831-0.254-50.734-9.806v23.125v18.728l0.057-39.821l0.07,40.126h0.26 c12.156,9.258,41.654,9.364,50.353,9.501c8.674,0.147,38.101-0.264,50.308-9.501c0,0,0.528-0.447,0.574-0.487l-0.138-41.73 C240.808,170.76,210.746,171.187,201.961,171.04z"></path> <path d="M50.802,86.844C40.725,86.984,0,87.078,0,102.038c0,14.959,40.72,15.054,50.802,15.193 c10.072,0.145,50.813-0.412,50.813-15.193C101.615,87.078,60.895,86.989,50.802,86.844z"></path> <path d="M50.734,122.976c-8.788-0.134-38.832-0.254-50.734-9.805v23.13v18.723l0.058-39.822l0.066,40.131h0.262 c12.157,9.252,41.654,9.363,50.353,9.506c8.673,0.137,38.1-0.27,50.305-9.506c0,0,0.53-0.447,0.576-0.493l-0.135-41.723 C89.578,122.702,59.516,123.128,50.734,122.976z"></path> <path d="M50.734,171.044c-8.788-0.142-38.832-0.254-50.734-9.811v23.125v18.732l0.058-39.821l0.066,40.126h0.262 c12.157,9.258,41.654,9.369,50.353,9.501c8.673,0.143,38.1-0.264,50.305-9.501c0,0,0.53-0.446,0.576-0.492l-0.135-41.721 C89.578,170.76,59.516,171.187,50.734,171.044z"></path> </g> </g> </g> </g></svg>
+                </label>
+                <br>
+                <span id="nombreArchivo" class="iborrainputfile">Seleccione el departamento de <br>
+                    la data que desea Gestionar</span>
+
+            </div>
+            <label class="custom-select">
+                <select style="text-align: center;" name="departamento" id="departamentoAGestionar">
+                    <option value="ventas">Ventas</option>
+                    <option value="marketing">Marketing</option>
+                </select>
+            </label>
+            <button type="button" class="cargar"  id="botonConsultarDatos" onclick="ObtenerDataPorDepartamento()">CARGAR ARCHIVOS</button>
+        </div>
+        <div id="vistaGestionarDatos" style="display: none;">
+        </div>
+    </div>
+</section>
+
+
+
+
+
 
 <!--
 ---------- JAVASCRIPT ----------
 -->
 
-    <script src="js/main.js"></script>
-    <script src="js/modal.js"></script>
+<script src="js/gestionarBd.js"></script>
+<script src="js/main.js"></script>
+<script src="js/modal.js"></script>
     
 </body>
 
