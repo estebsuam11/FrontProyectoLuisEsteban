@@ -1,0 +1,54 @@
+.resize-drag {
+  width: 120px;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 1rem;
+  color: white;
+  font-size: 20px;
+  font-family: sans-serif;
+
+  touch-action: none;
+
+  /* This makes things *much* easier */
+  box-sizing: border-box;
+}
+
+#myChart {
+    width: 600px; /* Ancho deseado */
+    height: 400px; /* Altura deseada */
+  }
+
+  
+  .navbar {
+    background-color: #333; /* Color de fondo del navbar superior */
+    /* Estilos de tu navbar superior */
+}
+
+.sub-navbar {
+    text-align: center; /* Centrar las opciones del navbar inferior */
+    background-color: #f5f5f5; /* Color de fondo del navbar inferior */
+    /* Estilos adicionales para el navbar inferior */
+}
+
+.sub-navbar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sub-navbar ul li {
+    display: inline-block;
+    margin: 0 10px; /* Espacio entre las opciones del navbar inferior */
+}
+
+.sub-navbar ul li a {
+    color: #333; /* Color de texto de las opciones del navbar inferior */
+    text-decoration: none;
+    padding: 10px 20px; /* Espaciado interno de las opciones del navbar inferior */
+    border: 1px solid #ccc; /* Borde de las opciones del navbar inferior */
+    border-radius: 5px; /* Borde redondeado de las opciones del navbar inferior */
+}
+
+.sub-navbar ul li a:hover {
+    background-color: #ddd; /* Color de fondo al pasar el ratón por encima de las opciones del navbar inferior */
+}

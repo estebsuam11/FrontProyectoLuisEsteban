@@ -11,6 +11,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
         <link  rel="stylesheet" type="text/css" href="./css/sidemenu.css"/>
         <link  rel="stylesheet" type="text/css" href="./css/main.css"/>
+        <link  rel="stylesheet" type="text/css" href="./css/estilosDashboard.css"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
         <link  rel="stylesheet" type="text/css" href="./css/modal.css">
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -19,13 +20,15 @@
         <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
         <link rel="stylesheet" href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css">
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
-
+    
 
         <title>Dashboard</title>
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
 
 
 
@@ -36,6 +39,15 @@
             <div id="barra-nav">
             <nav>
                 <h1>Unidades Tecnologicas de Santander</h1>
+            </nav>
+            <nav class="sub-navbar">
+                <!-- Navbar inferior -->
+                <ul>
+                    <li><a href="#">Opción 1</a></li>
+                    <li><a href="#">Opción 2</a></li>
+                    <li><a href="#">Opción 3</a></li>
+                    <li><a href="#">Opción 4</a></li>
+                </ul>
             </nav>
         </div>   
     </div>  
@@ -164,7 +176,8 @@
 <script src="js/gestionarBd.js"></script>
 <script src="js/main.js"></script>
 <script src="js/modal.js"></script>
-    
+<script src="js/dashboard/gestionarGraficas.js"></script>
+   
 </body>
 
 </html>
