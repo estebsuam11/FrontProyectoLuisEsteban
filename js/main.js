@@ -1,16 +1,9 @@
-const btn = document.querySelector('#menu-btn');
-        const menu = document.querySelector('#sidemenu');
-    
-        btn.addEventListener('click', e =>{
-            menu.classList.toggle("menu-expanded");
-            menu.classList.toggle("menu-collapsed");
-    
-            document.querySelector('body').classList.toggle('body-expanded');
-    });
 
 const globalData = []  ;
 nombresColumnas=[];
 var DatosDataLake;
+const listadoDepartamentos=['Ventas','Marketing','Recursos Humanos','SST']
+const listadoDeGraficos=["Barras","Torta","Rosquilla","Líneas"]
 
 
 function mostrarTabla() {
@@ -195,21 +188,130 @@ mostrarTabla()
 
 }
 
+function CargarTableroVacio() {
+    var divCuerpoPagina = document.getElementById('cuerpoPagina');
+    divCuerpoPagina.innerHTML = '';
 
-// Función para manejar el evento de arrastrar sobre la zona de soltar
+    var button = document.createElement("button");
+    button.onclick = function() {
+        CargarVistaParcialListaGraficos();
+    };
+
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "200");
+    svg.setAttribute("height", "200");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.style.backgroundColor = "#F5F7FA";
+
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", "M12 8V16M16 12H8M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z");
+    path.setAttribute("stroke", "#000000");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+
+    svg.appendChild(path);
+    button.appendChild(svg);
+
+    var texto = document.createElement("span");
+    texto.innerHTML = "Añadir Gráfico";
+
+    // Se crea un contenedor div para el texto
+    var divTexto = document.createElement("div");
+    divTexto.appendChild(texto);
+
+    // Se añade el contenedor div del texto al botón
+    button.appendChild(divTexto);
+
+    divCuerpoPagina.appendChild(button);
+}
+
+
+
+
+function CargarVistaParcialListaGraficos(){
+    var divEnlacesEditables = document.getElementById('cuerpoPagina');
+divEnlacesEditables.style.opacity = 0;
+
+    // Espera un breve momento para que la animación se inicie
+    setTimeout(function() {
+        // Elimina todos los elementos hijos del contenedor de enlaces
+        divEnlacesEditables.innerHTML = '';
+        var contenedorDashboard = document.createElement("div");
+contenedorDashboard.setAttribute("id", "contenedorDashboard");
+contenedorDashboard.style.paddingTop = "20px";
+contenedorDashboard.classList.add("mi-opfavo");
+
+// Crear el elemento div enlacesEditables
+var enlacesEditables = document.createElement("div");
+
+enlacesEditables.setAttribute("id", "enlacesEditables");
+enlacesEditables.classList.add("enlaces", "flex-container");
+
+listadoDeGraficos.forEach(nombre=>{
+    var nuevoGrupo=crearElementoGrupo(nombre,false);
+    enlacesEditables.appendChild(nuevoGrupo);
+    
+    });
+// Agregar el elemento enlacesEditables como hijo de contenedorDashboard
+contenedorDashboard.appendChild(enlacesEditables);
+
+// Agregar contenedorDashboard al divEnlacesEditables
+divEnlacesEditables.appendChild(contenedorDashboard);
+
+    
+        divEnlacesEditables.style.opacity = 1;
+    }, 500);
+}
+
+function CargarVistaParcialListaDepartamentos(){
+var divEnlacesEditables = document.getElementById('enlacesEditables');
+divEnlacesEditables.style.opacity = 0;
+
+    // Espera un breve momento para que la animación se inicie
+    setTimeout(function() {
+        // Elimina todos los elementos hijos del contenedor de enlaces
+        divEnlacesEditables.innerHTML = '';
+
+        listadoDepartamentos.forEach(nombre=>{
+            var nuevoGrupo=crearElementoGrupo(nombre,true);
+            divEnlacesEditables.appendChild(nuevoGrupo);
+            
+            });
+        divEnlacesEditables.style.opacity = 1;
+    }, 500);
+
+
+}
+
+function crearElementoGrupo(nombreDepartamento,bandera){
+
+var nuevoGrupo = document.createElement('div');
+nuevoGrupo.classList.add('grupo');
+var nuevoEnlace = document.createElement('a');
+nuevoEnlace.href = "#";
+nuevoEnlace.target = "_blank"; // Abre en una nueva pestaña
+var nuevoDivEnlace = document.createElement('div');
+nuevoDivEnlace.classList.add('enlace');
+var nuevoTituloEnlace = document.createElement('span');
+nuevoTituloEnlace.classList.add('titulo-enlace');
+nuevoTituloEnlace.textContent = nombreDepartamento;
+nuevoDivEnlace.appendChild(nuevoTituloEnlace);
+nuevoEnlace.appendChild(nuevoDivEnlace);
+nuevoGrupo.appendChild(nuevoEnlace);
+
+return nuevoGrupo;
+}
+
 function dragOverHandler(event) {
     event.preventDefault(); // Detener el comportamiento predeterminado del navegador
 }
 
-// Obtener la zona de soltar archivos
 var dropZone = document.getElementById('dropZone');
-
-// Agregar eventos de arrastrar y soltar a la zona destinada para soltar archivos
 dropZone.addEventListener('dragover', dragOverHandler);
 dropZone.addEventListener('drop', dropHandler);
 
-
-// Agregar el evento drop al contenedor donde se permite soltar archivos
 
 
 

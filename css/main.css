@@ -4195,7 +4195,7 @@ body {
   width: 100%; /* Opcional: ajusta el ancho según sea necesario */
 }
 .mi-opfavo {
-  width: 350px;
+  width: 500px;
   height: auto;
   margin: 0 auto;
   padding: 20px;
@@ -4223,6 +4223,7 @@ body {
   max-width: 300px;
 }
 
+
 .titulo-enlace {
   font-weight: bold;
   display: block;
@@ -4233,4 +4234,49 @@ body {
   font-size: 14px;
   color: #666;
   display: block;
+}
+
+.enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  transition: opacity 0.5s ease;
+}
+.enlace:hover {
+  background-color: #f0f0f0; /* Cambia el color de fondo al hacer hover */
+  color: #ff0000; /* Cambia el color del texto al hacer hover */
+  transition: background-color 0.3s, color 0.3s; /* Agrega una transición suave */
+}
+
+svg:hover + .enlace {
+  background-color: #f0f0f0; /* Cambia el color de fondo al hacer hover */
+  color: #ff0000; /* Cambia el color del texto al hacer hover */
+}
+
+.grupo {
+  width: 48%; /* Ajusta el ancho de cada grupo según tus preferencias */
+  margin-bottom: 1rem; /* Espacio entre los grupos */
+}
+
+#cuerpoPagina {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+#cuerpoPagina button {
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#cuerpoPagina button:hover {
+  background-color:rebeccapurple;;
+}
+.icono {
+  margin-right: 5px; /* Espacio entre el icono y el texto */
+  font-size: 20px; /* Tamaño del icono */
 }
