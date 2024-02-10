@@ -20,9 +20,10 @@
         <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
         <link rel="stylesheet" href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css">
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
-    
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
         <title>Dashboard</title>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
@@ -39,15 +40,6 @@
             <div id="barra-nav">
             <nav>
                 <h1>Unidades Tecnologicas de Santander</h1>
-            </nav>
-            <nav class="sub-navbar">
-                <!-- Navbar inferior -->
-                <ul>
-                    <li><a href="#">Opción 1</a></li>
-                    <li><a href="#">Opción 2</a></li>
-                    <li><a href="#">Opción 3</a></li>
-                    <li><a href="#">Opción 4</a></li>
-                </ul>
             </nav>
         </div>   
     </div>  
@@ -108,7 +100,7 @@
 -->
 
 
-<section id="modalCargarDatos" class="modal">
+<section id="modalCargarDatos" class="modalGeneral">
     <div class="modal__container">
         <button id="cerrar" onclick="CerrarModal()" class="modal__close"></button>
         <div class="contact-form" id="cargarArchivoContainer">
@@ -138,7 +130,7 @@
     </div>
 </section>
 
-<section id="modalGestionBd" class="modal">
+<section id="modalGestionBd" class="modalGeneral">
     <div class="modal__container" id="modalGestionarData">
         <button id="cerrar" onclick="CerrarModalGestionBd()" class="modal__close"></button>
         <div class="contact-form" id="consultarDatosContainer">
@@ -164,6 +156,27 @@
     </div>
 </section>
 
+<!-- Modal -->
+<div class="modal fade" id="modalConfirmarEliminacio" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+          <button type="button"  onclick="CerrarModalConfirmarEliminacion();" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas eliminar este elemento?
+        </div>
+        <div class="modal-footer">
+          <button type="button"  onclick="CerrarModalConfirmarEliminacion();" class="btn btn-secondary" data-dismiss="modal" id="modalCancelar">Cancelar</button>
+          <button type="button" onclick="EliminarGrafica();" class="btn btn-primary" id="modalAceptar">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
 
 

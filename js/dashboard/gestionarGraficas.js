@@ -1,6 +1,26 @@
-function generarGrafica(){
+var instanciasGraficos = {};
+var divAeliminar;
+
+function generarIdContenedorGrafica() {
+  var id = "Grafico-numero-" + generarGUID();
+  return id;
+}
+
+function generarGUID() {
+  // Genera un GUID aleatorio
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0,
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+  });
+}
+
+function generarGrafica(idDivContenedor,esRecreado){
     // Obtener el contexto del canvas
-var ctx = document.getElementById('myChart').getContext('2d');
+    var idCanvas=idDivContenedor+'-canvas';
+var ctx = document.getElementById(idDivContenedor+'-canvas').getContext('2d');
+
+
 
 // Datos de ejemplo: ventas mensuales
 var ventasMensuales = {
@@ -26,14 +46,27 @@ var config = {
         }
     }
 };
-// Inicializar el gráfico
-var myChart = new Chart(ctx, config);
-hacerDraggable();
+
+if(esRecreado){
+destruirInstancia(idCanvas);
 }
 
 
-function hacerDraggable() {
-    interact('.resize-drag')
+instanciasGraficos[idCanvas]  = new Chart(ctx, config);
+hacerDraggable(idCanvas,idDivContenedor);
+}
+
+
+function destruirInstancia(idCanvas) {
+  // Verificar si existe un gráfico con ese ID y si es así, destruirlo
+  if (instanciasGraficos[idCanvas]) {
+      instanciasGraficos[idCanvas].destroy();
+      delete instanciasGraficos[idCanvas]; // Eliminar la referencia del objeto charts
+  }
+}
+
+function hacerDraggable(idCanvas,idContenedor) {
+  interact('#' + idContenedor)
     .resizable({
       // resize from all edges and corners
       edges: { left: true, right: true, bottom: true, top: true },
@@ -56,13 +89,8 @@ function hacerDraggable() {
   
           target.setAttribute('data-x', x)
           target.setAttribute('data-y', y)
-          var chartInstance = Chart.getChart("myChart");
-
-// Destruir la instancia del gráfico
-if (chartInstance) {
-    chartInstance.destroy();
-}
-            RecrearCanvas()
+    
+            RecrearCanvas(idCanvas,idContenedor)
           
         }
       },
@@ -85,6 +113,7 @@ if (chartInstance) {
       inertia: true,
       modifiers: [
         interact.modifiers.restrictRect({
+          containment: 'parent',
           restriction: 'parent',
           endOnly: true
         })
@@ -112,42 +141,79 @@ function ajustarTamanoCanvas(chart) {
 }
 
 
-
-function agregarLienzoADashboard() {
-    var contenedorGraficas = document.getElementById("cuerpoPagina");
-contenedorGraficas.innerHTML='';
-    // Crear el div contenedor para el canvas
-    var divContenedor = document.createElement('div');
-    divContenedor.id="luis";
-    divContenedor.classList.add('resize-drag'); // Agregar la clase para hacer draggable
-    divContenedor.style.width = '200px';
-    divContenedor.style.height = '200px';
-    divContenedor.style.border = '1px solid black';
-
-    // Crear el canvas y configurarlo
-    var canvas = document.createElement('canvas');
-    canvas.id = 'myChart';
-    canvas.width = divContenedor.offsetWidth; // Establecer el ancho del canvas igual al ancho del div contenedor
-    canvas.height = divContenedor.offsetHeight; // Establecer la altura del canvas igual a la altura del div contenedor
-
-    // Agregar el canvas al div contenedor
-    divContenedor.appendChild(canvas);
-
-    // Agregar el div contenedor al contenedor de gráficas
-    contenedorGraficas.appendChild(divContenedor);
-
-    // Generar la gráfica en el canvas
-    generarGrafica();
+function AbrirModalConfirmarEliminación(divContenedor){
+  divAeliminar = divContenedor;
+  $('#modalConfirmarEliminacio').modal('show');
 }
 
-function RecrearCanvas(){
-    var contendorGrafica=document.getElementById("luis")
+function CerrarModalConfirmarEliminacion(){
+  $('#modalConfirmarEliminacio').modal('hide');
+}
+
+function EliminarGrafica(){
+  $(divAeliminar).remove();
+    $('#modalConfirmarEliminacio').modal('hide');
+    toastr.success("Gráfica eliminada correctamente"); 
+}
+
+function AgregarGraficaAlLienzo(){
+
+  var contenedorGraficas = document.getElementById("cuerpoPagina");
+  var idGrafica=generarIdContenedorGrafica();
+  // Crear el div contenedor para el canvas
+  var divContenedor = document.createElement('div');
+  divContenedor.id=idGrafica;
+  divContenedor.classList.add('resize-drag'); // Agregar la clase para hacer draggable
+  divContenedor.style.width = '200px';
+  divContenedor.style.height = '200px';
+  divContenedor.style.border = '1px solid black';
+  divContenedor.style.position = 'relative'; // Establecer posición relativa
+
+  // Crear el botón para eliminar
+  var botonEliminar = document.createElement('button');
+  botonEliminar.textContent = 'x';
+  botonEliminar.style.position = 'absolute'; // Establecer posición absoluta
+  botonEliminar.style.top = '5px'; // Colocar 5px de distancia desde la parte superior
+  botonEliminar.style.right = '5px'; // Colocar 5px de distancia desde la parte derecha
+  botonEliminar.onclick = function() {
+    AbrirModalConfirmarEliminación(divContenedor);
+  };
+
+  // Crear el canvas y configurarlo
+  var canvas = document.createElement('canvas');
+  canvas.id = idGrafica+'-canvas';
+  canvas.width = divContenedor.offsetWidth; // Establecer el ancho del canvas igual al ancho del div contenedor
+  canvas.height = divContenedor.offsetHeight; // Establecer la altura del canvas igual a la altura del div contenedor
+
+  // Agregar el canvas al div contenedor
+  divContenedor.appendChild(canvas);
+
+  // Agregar el botón eliminar al div contenedor
+  divContenedor.appendChild(botonEliminar);
+
+  // Agregar el div contenedor al contenedor de gráficas
+  contenedorGraficas.appendChild(divContenedor);
+
+  // Generar la gráfica en el canvas
+  generarGrafica(idGrafica,false);
+}
+
+function AgregarLienzoADashboard() {
+  var contenedorGraficas = document.getElementById("cuerpoPagina");
+  contenedorGraficas.innerHTML='';
+}
+
+function RecrearCanvas(idCanvas,idContenedor){
+       var canvas=document.getElementById(idCanvas)
+       document.getElementById(idContenedor).removeChild(canvas);
+  
+    var contendorGrafica=document.getElementById(idContenedor)
     var canvas = document.createElement('canvas');
-    canvas.id = 'myChart';
+    canvas.id = idCanvas;
     canvas.width = contendorGrafica.offsetWidth; // Establecer el ancho del canvas igual al ancho del div contenedor
     canvas.height = contendorGrafica.offsetHeight;
     contendorGrafica.appendChild(canvas);
-    generarGrafica();
+    generarGrafica(idContenedor,true);
 }
 
 
