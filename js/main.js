@@ -1,4 +1,4 @@
-
+const dataSetDashboard=[];
 const globalData = []  ;
 nombresColumnas=[];
 var DatosDataLake;
@@ -73,7 +73,6 @@ async function guardarDataEnDataLake() {
     // Mostrar el spinner mientras se envía la solicitud
     var spinner = new Spinner().spin(document.body);
     extraerInformacionDataTable();
-
     try {
         var response = await $.ajax({
             url: 'https://localhost:7132/api/ETL/CargarObjetos',
@@ -95,6 +94,30 @@ async function guardarDataEnDataLake() {
     }
 }
 
+async function ObtenerDataSetPordepartamento(departamento){
+    var spinner = new Spinner().spin(document.body);
+
+    try {
+        var response = await $.ajax({
+            url: 'https://localhost:7132/api/ETL/ObtenerDataFinalDataSetPorDepartamento',
+            type: 'GET',
+            contentType: 'application/json',
+            data:{codigoDepartamento: departamento },
+        });
+        spinner.stop();
+        toastr.success("Dataset para el departamento de"+" "+departamento+" "+"encontrado satisfactoriamente");
+        dataSetDashboard.push(response.datos);
+        AgregarLienzoADashboard();
+
+    } catch (error) {
+        // Oculta la rueda de carga aquí
+        spinner.stop();
+
+        const errorMessage = error.responseJSON?.error || 'Error desconocido';
+        toastr.error(errorMessage);
+    }
+}
+
 async function ObtenerDataPorDepartamento() {
     // Mostrar el spinner mientras se envía la solicitud
     var spinner = new Spinner().spin(document.body);
@@ -102,7 +125,7 @@ async function ObtenerDataPorDepartamento() {
 
     try {
         var response = await $.ajax({
-            url: 'https://localhost:7132/api/ETL/ObtenerDataPorDepartamento',
+            url: 'https://localhost:7132/api/ETL/ObtenerDataLakesPorDepartamento',
             type: 'GET',
             contentType: 'application/json',
             data:{codigoDepartamento: departamento },
@@ -230,7 +253,8 @@ function CargarTableroVacio() {
 
 
 
-function CargarVistaParcialListaGraficos(){
+function CargarVistaParcialListaGraficos(event){
+    event.preventDefault(); 
     var divEnlacesEditables = document.getElementById('cuerpoPagina');
 divEnlacesEditables.style.opacity = 0;
 
@@ -291,7 +315,9 @@ var nuevoGrupo = document.createElement('div');
 nuevoGrupo.classList.add('grupo');
 var nuevoEnlace = document.createElement('a');
 nuevoEnlace.href = "#";
-nuevoEnlace.target = "_blank"; // Abre en una nueva pestaña
+nuevoEnlace.onclick = function() {
+    ObtenerDataSetPordepartamento(nombreDepartamento.toLowerCase());
+};
 var nuevoDivEnlace = document.createElement('div');
 nuevoDivEnlace.classList.add('enlace');
 var nuevoTituloEnlace = document.createElement('span');
@@ -303,6 +329,9 @@ nuevoGrupo.appendChild(nuevoEnlace);
 
 return nuevoGrupo;
 }
+
+ 
+
 
 function dragOverHandler(event) {
     event.preventDefault(); // Detener el comportamiento predeterminado del navegador

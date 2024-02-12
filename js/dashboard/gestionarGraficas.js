@@ -234,6 +234,45 @@ function RecrearCanvas(idCanvas,idContenedor){
 
     }
 
+
+    
+    function agregarSidebarAlBody() {
+      // HTML del sidebar
+      var sidebarHTML = `      
+          <div id="sidebar" class="sidebar">
+          <div class="sidebar-arrow" onclick="toggleSidebar()">
+          <svg fill="#000000" width="72px" height="72px" viewBox="0 0 1920.00 1920.00" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="30.72"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="m1352.005.012 176.13 176.13-783.864 783.989 783.864 783.74L1352.005 1920 391.887 960.13z" fill-rule="evenodd"></path> </g></svg>
+          </div>
+            <span>Agregar Gráfica</span>
+            
+            <ul>
+              <li><a href="#"><svg height="70px" width="70px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.001 512.001" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <circle style="fill:#FED159;" cx="257.107" cy="256.104" r="246.892"></circle> <path style="fill:#F64B4A;" d="M503.988,256.105H257.109V9.214C393.457,9.214,503.988,119.757,503.988,256.105z"></path> <path style="fill:#65B4BB;" d="M257.113,9.226v246.879L82.532,430.686c-96.406-96.418-96.406-252.744,0-349.15 C130.747,33.321,193.93,9.226,257.113,9.226z"></path> <path d="M437.126,74.944c-99.836-99.834-262.279-99.836-362.112,0c-15.733,15.732-29.331,33.372-40.416,52.431 c-2.544,4.374-1.061,9.984,3.315,12.529c4.373,2.545,9.983,1.061,12.529-3.314c10.289-17.691,22.917-34.072,37.532-48.686 c44.018-44.018,101.147-67.116,158.931-69.325v233.624l-145.49,145.488c-3.579,3.579-3.579,9.38,0,12.959 c1.79,1.79,4.135,2.684,6.481,2.684c2.345,0,4.691-0.894,6.481-2.684l145.488-145.488h91.213c5.062,0,9.164-4.103,9.164-9.164 s-4.102-9.164-9.164-9.164h-85.846V18.578c57.786,2.209,114.913,25.307,158.931,69.325s67.115,101.147,69.325,158.933H388.954 c-5.062,0-9.164,4.103-9.164,9.164c0,5.061,4.102,9.164,9.164,9.164H493.49c-2.209,57.786-25.307,114.913-69.325,158.933 c-92.688,92.689-243.503,92.689-336.192,0c-32.212-32.212-54.373-72.644-64.087-116.926c-9.46-43.13-6.803-87.92,7.684-129.529 c1.664-4.78-0.861-10.003-5.641-11.668c-4.774-1.664-10.003,0.861-11.668,5.641c-15.603,44.81-18.464,93.042-8.277,139.483 c10.465,47.709,34.336,91.265,69.028,125.958c49.918,49.917,115.488,74.876,181.057,74.876s131.139-24.959,181.057-74.876 C536.959,337.221,536.959,174.779,437.126,74.944z"></path> </g></svg></a></li>
+              <li><a href="#"><svg height="70px" width="70px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.001 512.001" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <circle style="fill:#FED159;" cx="257.107" cy="256.104" r="246.892"></circle> <path style="fill:#F64B4A;" d="M503.988,256.105H257.109V9.214C393.457,9.214,503.988,119.757,503.988,256.105z"></path> <path style="fill:#65B4BB;" d="M257.113,9.226v246.879L82.532,430.686c-96.406-96.418-96.406-252.744,0-349.15 C130.747,33.321,193.93,9.226,257.113,9.226z"></path> <path d="M437.126,74.944c-99.836-99.834-262.279-99.836-362.112,0c-15.733,15.732-29.331,33.372-40.416,52.431 c-2.544,4.374-1.061,9.984,3.315,12.529c4.373,2.545,9.983,1.061,12.529-3.314c10.289-17.691,22.917-34.072,37.532-48.686 c44.018-44.018,101.147-67.116,158.931-69.325v233.624l-145.49,145.488c-3.579,3.579-3.579,9.38,0,12.959 c1.79,1.79,4.135,2.684,6.481,2.684c2.345,0,4.691-0.894,6.481-2.684l145.488-145.488h91.213c5.062,0,9.164-4.103,9.164-9.164 s-4.102-9.164-9.164-9.164h-85.846V18.578c57.786,2.209,114.913,25.307,158.931,69.325s67.115,101.147,69.325,158.933H388.954 c-5.062,0-9.164,4.103-9.164,9.164c0,5.061,4.102,9.164,9.164,9.164H493.49c-2.209,57.786-25.307,114.913-69.325,158.933 c-92.688,92.689-243.503,92.689-336.192,0c-32.212-32.212-54.373-72.644-64.087-116.926c-9.46-43.13-6.803-87.92,7.684-129.529 c1.664-4.78-0.861-10.003-5.641-11.668c-4.774-1.664-10.003,0.861-11.668,5.641c-15.603,44.81-18.464,93.042-8.277,139.483 c10.465,47.709,34.336,91.265,69.028,125.958c49.918,49.917,115.488,74.876,181.057,74.876s131.139-24.959,181.057-74.876 C536.959,337.221,536.959,174.779,437.126,74.944z"></path> </g></svg></a></li>
+            </ul>
+          </div>
+
+      `;
+      
+      // Crear un elemento div para contener el sidebar
+      var cuerpoPagina=document.getElementById("cuerpoPagina");
+      var sidebarContainer = document.createElement("div");
+      sidebarContainer.innerHTML = sidebarHTML;
+      
+      // Agregar el sidebar al body del documento
+      cuerpoPagina.appendChild(sidebarContainer);
+    }
+    
+    // Función para mostrar u ocultar el sidebar
+    function toggleSidebar() {
+      var sidebar = document.getElementById("sidebar");
+      if (sidebar.style.right === "-300px") {
+        sidebar.style.right = "0";
+      } else {
+        sidebar.style.right = "-300px";
+      }
+    }
+    
+
   
   // this function is used later in the resizing and gesture demos
   window.dragMoveListener = dragMoveListener;

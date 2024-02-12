@@ -52,3 +52,76 @@
 .sub-navbar ul li a:hover {
     background-color: #ddd; /* Color de fondo al pasar el ratón por encima de las opciones del navbar inferior */
 }
+
+
+
+
+  .sidebar {
+    position: fixed;
+    top: 100px;
+    right: -300px; /* Asegúrate de que la anchura del sidebar coincida con este valor */
+    width: 300px; /* Ancho del sidebar */
+    height: 100%;
+    background-color: #f1f1f1;
+    border: 1px solid black;
+    padding: 20px;
+    transition: right 0.3s ease;
+  }
+  
+  .sidebar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidebar ul li {
+    margin-bottom: 10px;
+  }
+  
+  .sidebar a {
+    text-decoration: none;
+    color: black;
+  }
+  
+  .sidebar button {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+.sidebar-arrow {
+  position: absolute;
+  top: 0; /* Colocar el div de la flecha en la parte superior del div principal */
+  bottom: 0; /* Asegurar que ocupe toda la altura del div principal */
+  left: -30px; /* Ajusta el desplazamiento de la flecha */
+  z-index: 1; /* Asegura que la flecha esté detrás del botón */
+  background-color:yellowgreen;
+  cursor: pointer;
+  border: 1px solid black;
+  transition: background-color 0.3s ease; /* Transición para el cambio de color */
+}
+
+.sidebar-arrow svg {
+  width: 30px;
+  height: 30px;
+  transform: translateY(50%);
+}
+
+.sidebar-arrow:hover {
+  background-color: green; /* Cambia el color de fondo al pasar el ratón sobre la flecha */
+}
+  
+  
+.opcion {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.opcion-svg {
+  width: 30px;
+  height: 30px;
+  transition: transform 0.3s ease; /* Agrega una transición suave */
+}
+
+.opcion:hover .opcion-svg {
+  transform: scale(1.2); /* Cambia el tamaño del SVG al pasar el ratón */
+}
