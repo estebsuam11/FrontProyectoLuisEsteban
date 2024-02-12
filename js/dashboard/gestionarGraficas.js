@@ -1,4 +1,18 @@
 var instanciasGraficos = {};
+var configuracionesGraficos={};
+
+
+var datosPrueba = {
+  labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+  datasets: [{
+      label: 'Ventas',
+      data: [120, 180, 200, 150, 220, 250],
+      backgroundColor: 'rgba(54, 162, 235, 0.5)', // Color de las barras
+      borderColor: 'rgba(54, 162, 235, 1)', // Color del borde de las barras
+      borderWidth: 1
+  }]
+};
+
 var divAeliminar;
 var nombresColumnas=['Ingresos','Producto']
 
@@ -16,7 +30,7 @@ function generarGUID() {
   });
 }
 
-function GenerarConfiguracionGrafica(tipoGrafico,data){
+function GenerarConfiguracionGrafica(tipoGrafico,data,idCanvas){
   var configuracionGrafica;
   switch (tipoGrafico) {
     case 'bar':
@@ -33,15 +47,15 @@ function GenerarConfiguracionGrafica(tipoGrafico,data){
       };
         break;
     case 'line':
-     var configuracionGrafica= {
-        type: 'scatter',
+     configuracionGrafica= {
+        type: 'line',
         data: data
       };
         break;
     case 'pie':
         configuracionGrafica={
           type: 'pie', // Tipo de gráfico de torta
-          data: ventasMensuales,
+          data: data,
           options: {
               responsive: true, // Hacer que el gráfico sea responsive
               maintainAspectRatio: false, // No mantener la proporción de aspecto para que se ajuste al contenedor
@@ -64,7 +78,7 @@ function GenerarConfiguracionGrafica(tipoGrafico,data){
     case 'scatter':
         configuracionGrafica={
           type: 'scatter',
-          data: ventasMensuales,
+          data: data,
           options: {
               scales: {
                   x: {
@@ -90,52 +104,14 @@ function GenerarConfiguracionGrafica(tipoGrafico,data){
         console.log('Tipo de gráfica desconocido.');
 }
 
+configuracionesGraficos[idCanvas] = configuracionGrafica;
 return configuracionGrafica
 }
 
-function generarGrafica(idDivContenedor,esRecreado){
-    // Obtener el contexto del canvas
+function generarGrafica(idDivContenedor,esRecreado,configuracionGrafica){
+    // Obtener el contexto del canvasm
     var idCanvas=idDivContenedor+'-canvas';
 var ctx = document.getElementById(idDivContenedor+'-canvas').getContext('2d');
-
-
-
-// Datos de ejemplo: ventas mensuales
-var ventasMensuales = {
-    labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
-    datasets: [{
-        label: 'Ventas',
-        data: [120, 180, 200, 150, 220, 250],
-        backgroundColor: 'rgba(54, 162, 235, 0.5)', // Color de las barras
-        borderColor: 'rgba(54, 162, 235, 1)', // Color del borde de las barras
-        borderWidth: 1
-    }]
-};
-
-// Configuración del gráfico
-var config  =  {
-  type: 'scatter',
-  data: ventasMensuales,
-  options: {
-      scales: {
-          x: {
-              type: 'category',
-              title: {
-                  display: true,
-                  text: 'Mes'
-              }
-          },
-          y: {
-              beginAtZero: true,
-              title: {
-                  display: true,
-                  text: 'Ventas'
-              }
-          }
-      },
-      responsive: true
-  }
-};
 
 
 if(esRecreado){
@@ -143,7 +119,7 @@ destruirInstancia(idCanvas);
 }
 
 
-instanciasGraficos[idCanvas]  = new Chart(ctx, config);
+instanciasGraficos[idCanvas]  = new Chart(ctx, configuracionGrafica);
 hacerDraggable(idCanvas,idDivContenedor);
 }
 
@@ -247,8 +223,7 @@ function EliminarGrafica(){
     toastr.success("Gráfica eliminada correctamente"); 
 }
 
-function AgregarGraficaAlLienzo(){
-
+function AgregarGraficaAlLienzo(tipoGrafico){
   var contenedorGraficas = document.getElementById("cuerpoPagina");
   var idGrafica=generarIdContenedorGrafica();
   // Crear el div contenedor para el canvas
@@ -272,7 +247,8 @@ function AgregarGraficaAlLienzo(){
 
   // Crear el canvas y configurarlo
   var canvas = document.createElement('canvas');
-  canvas.id = idGrafica+'-canvas';
+  var idCanvas=idGrafica+'-canvas';
+  canvas.id = idCanvas;
   canvas.width = divContenedor.offsetWidth; // Establecer el ancho del canvas igual al ancho del div contenedor
   canvas.height = divContenedor.offsetHeight; // Establecer la altura del canvas igual a la altura del div contenedor
 
@@ -285,8 +261,9 @@ function AgregarGraficaAlLienzo(){
   // Agregar el div contenedor al contenedor de gráficas
   contenedorGraficas.appendChild(divContenedor);
 
+  var configuracionGrafica=GenerarConfiguracionGrafica(tipoGrafico,datosPrueba,idCanvas);
   // Generar la gráfica en el canvas
-  generarGrafica(idGrafica,false);
+  generarGrafica(idGrafica,false,configuracionGrafica);
 }
 
 function AgregarLienzoADashboard() {
@@ -305,7 +282,8 @@ function RecrearCanvas(idCanvas,idContenedor){
     canvas.width = contendorGrafica.offsetWidth; // Establecer el ancho del canvas igual al ancho del div contenedor
     canvas.height = contendorGrafica.offsetHeight;
     contendorGrafica.appendChild(canvas);
-    generarGrafica(idContenedor,true);
+    var configuracion=configuracionesGraficos[idCanvas.toString()];
+    generarGrafica(idContenedor,true,configuracion);
 }
 
 
