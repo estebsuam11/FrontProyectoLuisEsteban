@@ -1,5 +1,6 @@
 var instanciasGraficos = {};
 var divAeliminar;
+var nombresColumnas=['Ingresos','Producto']
 
 function generarIdContenedorGrafica() {
   var id = "Grafico-numero-" + generarGUID();
@@ -13,6 +14,83 @@ function generarGUID() {
           v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
   });
+}
+
+function GenerarConfiguracionGrafica(tipoGrafico,data){
+  var configuracionGrafica;
+  switch (tipoGrafico) {
+    case 'bar':
+     configuracionGrafica  = {
+        type: 'bar',
+        data: data,
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        },
+      };
+        break;
+    case 'line':
+     var configuracionGrafica= {
+        type: 'scatter',
+        data: data
+      };
+        break;
+    case 'pie':
+        configuracionGrafica={
+          type: 'pie', // Tipo de gráfico de torta
+          data: ventasMensuales,
+          options: {
+              responsive: true, // Hacer que el gráfico sea responsive
+              maintainAspectRatio: false, // No mantener la proporción de aspecto para que se ajuste al contenedor
+              layout: {
+                  padding: {
+                      left: 10,
+                      right: 10,
+                      top: 10,
+                      bottom: 10
+                  }
+              },
+              plugins: {
+                  legend: {
+                      position: 'right' 
+                  }
+              }
+          }
+        };
+        break;
+    case 'scatter':
+        configuracionGrafica={
+          type: 'scatter',
+          data: ventasMensuales,
+          options: {
+              scales: {
+                  x: {
+                      type: 'category',
+                      title: {
+                          display: true,
+                          text: 'Mes'
+                      }
+                  },
+                  y: {
+                      beginAtZero: true,
+                      title: {
+                          display: true,
+                          text: 'Ventas'
+                      }
+                  }
+              },
+              responsive: true
+          }
+        };
+        break;
+    default:
+        console.log('Tipo de gráfica desconocido.');
+}
+
+return configuracionGrafica
 }
 
 function generarGrafica(idDivContenedor,esRecreado){
@@ -35,17 +113,30 @@ var ventasMensuales = {
 };
 
 // Configuración del gráfico
-var config = {
-    type: 'bar',
-    data: ventasMensuales,
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true // Empezar en cero en el eje Y
-            }
-        }
-    }
+var config  =  {
+  type: 'scatter',
+  data: ventasMensuales,
+  options: {
+      scales: {
+          x: {
+              type: 'category',
+              title: {
+                  display: true,
+                  text: 'Mes'
+              }
+          },
+          y: {
+              beginAtZero: true,
+              title: {
+                  display: true,
+                  text: 'Ventas'
+              }
+          }
+      },
+      responsive: true
+  }
 };
+
 
 if(esRecreado){
 destruirInstancia(idCanvas);
@@ -201,6 +292,7 @@ function AgregarGraficaAlLienzo(){
 function AgregarLienzoADashboard() {
   var contenedorGraficas = document.getElementById("cuerpoPagina");
   contenedorGraficas.innerHTML='';
+  agregarSidebarAlBody();
 }
 
 function RecrearCanvas(idCanvas,idContenedor){
