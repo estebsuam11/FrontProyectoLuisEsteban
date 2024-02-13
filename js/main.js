@@ -107,6 +107,7 @@ async function ObtenerDataSetPordepartamento(departamento){
         spinner.stop();
         toastr.success("Dataset para el departamento de"+" "+departamento+" "+"encontrado satisfactoriamente");
         dataSetDashboard.push(response.datos);
+        ExtrarNombresCamposColumnas();
         AgregarLienzoADashboard();
 
     } catch (error) {
