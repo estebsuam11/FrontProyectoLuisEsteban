@@ -86,10 +86,29 @@ function generarGUID() {
 }
 
 function GenerarConfiguracionGrafica(tipoGrafico,data,idCanvas,configDisenoGrafico){
-  let configuracionGrafica;
+  function deepCopy(obj) {
+    if (typeof obj !== 'object' || obj === null) {
+      return obj;
+    }
+    
+    if (Array.isArray(obj)) {
+      return obj.map(deepCopy);
+    }
+    
+    const copy = {};
+    for (let key in obj) {
+      copy[key] = deepCopy(obj[key]);
+    }
+    
+    return copy;
+  }
+
+  
+  // Luego, en tu switch:
+  var configuracionGrafica;
   switch (tipoGrafico) {
     case 'bar':
-     configuracionGrafica  = {
+      configuracionGrafica = deepCopy({
         type: 'bar',
         data: data,
         options: {
@@ -99,80 +118,77 @@ function GenerarConfiguracionGrafica(tipoGrafico,data,idCanvas,configDisenoGrafi
             }
           }
         },
-      };
-        break;
+      });
+      break;
     case 'line':
-     configuracionGrafica = {
+      configuracionGrafica = deepCopy({
         type: 'line',
         data: data
-      };
-        break;
+      });
+      break;
     case 'pie':
-        configuracionGrafica={
-          type: 'pie', // Tipo de gráfico de torta
-          data: data,
-          options: {
-              responsive: true, // Hacer que el gráfico sea responsive
-              maintainAspectRatio: false, // No mantener la proporción de aspecto para que se ajuste al contenedor
-              layout: {
-                  padding: {
-                      left: 10,
-                      right: 10,
-                      top: 10,
-                      bottom: 10
-                  }
-              },
-              plugins: {
-                  legend: {
-                      position: 'right' 
-                  }
-              }
+      configuracionGrafica = deepCopy({
+        type: 'pie',
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              left: 10,
+              right: 10,
+              top: 10,
+              bottom: 10
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'right'
+            }
           }
-        };
-        break;
+        }
+      });
+      break;
     case 'scatter':
-        configuracionGrafica={
-          type: 'scatter',
-          data: data,
-          options: {
-              scales: {
-                  x: {
-                      type: 'category',
-                      title: {
-                          display: true,
-                          text: 'Mes'
-                      }
-                  },
-                  y: {
-                      beginAtZero: true,
-                      title: {
-                          display: true,
-                          text: 'Ventas'
-                      }
-                  }
-              },
-              responsive: true
-          }
-        };
-        break;
+      configuracionGrafica = deepCopy({
+        type: 'scatter',
+        data: data,
+        options: {
+          scales: {
+            x: {
+              type: 'category',
+              title: {
+                display: true,
+                text: 'Mes'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Ventas'
+              }
+            }
+          },
+          responsive: true
+        }
+      });
+      break;
     default:
-        console.log('Tipo de gráfica desconocido.');
-}
-
-
-
-configuracionGrafica.data.datasets.forEach(function(localDataSet) {
-  localDataSet.borderColor ="#000000"; 
-  if(tipoGrafico!="pie"){
-    localDataSet.backgroundColor = configDisenoGrafico.color;
-  
-  }else{
-    var color = Math.floor(Math.random()*16777215).toString(16);  
-    localDataSet.backgroundColor='#' + color;
+      console.log('Tipo de gráfica desconocido.');
   }
-});
 
-configuracionesGraficos[idCanvas] = Object.assign({}, configuracionGrafica);
+
+
+  configuracionGrafica.data.datasets.forEach(localDataSet => {
+    localDataSet.borderColor = "#000000"; 
+    if (tipoGrafico !== "pie") {
+      localDataSet.backgroundColor = configDisenoGrafico.color;
+    } else {
+      var color = Math.floor(Math.random() * 16777215).toString(16);  
+      localDataSet.backgroundColor = '#' + color;
+    }
+  });
 
 return configuracionGrafica
 }
@@ -346,6 +362,7 @@ function AgregarGraficaAlLienzo(){
 
 
   var configuracionGrafica=GenerarConfiguracionGrafica(almacenTipoGrafico,datosPrueba,idCanvas,configDisenoGrafico);
+  configuracionesGraficos[idCanvas]=configuracionGrafica;
   almacenTipoGrafico=null;
   // Generar la gráfica en el canvas
   generarGrafica(idGrafica,false,configuracionGrafica);
@@ -371,7 +388,7 @@ function RecrearCanvas(idCanvas,idContenedor){
     canvas.width = contendorGrafica.offsetWidth; // Establecer el ancho del canvas igual al ancho del div contenedor
     canvas.height = contendorGrafica.offsetHeight;
     contendorGrafica.appendChild(canvas);
-    var configuracion=configuracionesGraficos[idCanvas.toString()];
+    var configuracion=configuracionesGraficos[idCanvas];
     generarGrafica(idContenedor,true,configuracion);
 }
 
