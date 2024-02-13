@@ -105,11 +105,10 @@ async function ObtenerDataSetPordepartamento(departamento){
             data:{codigoDepartamento: departamento },
         });
         spinner.stop();
-        toastr.success("Dataset para el departamento de"+" "+departamento+" "+"encontrado satisfactoriamente");
         dataSetDashboard.push(response.datos);
         ExtrarNombresCamposColumnas();
         AgregarLienzoADashboard();
-
+        toastr.success("Dataset para el departamento de"+" "+departamento+" "+"encontrado satisfactoriamente");
     } catch (error) {
         // Oculta la rueda de carga aquí
         spinner.stop();

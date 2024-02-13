@@ -4264,13 +4264,15 @@ svg:hover + .enlace {
   margin-bottom: 1rem; /* Espacio entre los grupos */
 }
 
-#cuerpoPagina {
+.cuerpoPagina {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 84vh;
   flex-direction: column;
 }
+
+
 
 #cuerpoPagina button {
   font-size: 24px;

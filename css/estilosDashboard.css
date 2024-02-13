@@ -110,7 +110,13 @@
   background-color: green; /* Cambia el color de fondo al pasar el ratón sobre la flecha */
 }
   
-  
+.cuerpoPaginaEnDashboard {
+  position: relative;
+  width: 84%;
+  height: 820px;
+  border: 2px solid black;
+}  
+
 .opcion {
   display: flex;
   align-items: center;
@@ -128,9 +134,21 @@
 }
 .opcion-boton {
   transition: transform 0.3s ease; /* Agrega una transición suave */
-  margin-top: 60px;
+  margin-top: 40px;
 }
 
 .opcion-boton:hover {
   transform: scale(1.1); /* Aumenta el tamaño al pasar el ratón */
+}
+
+.editarNombreGrafica{
+    cursor: text;
+    position: absolute;
+    top: 2px;
+    color:black;
+
+}
+
+.selectFilto{
+  width: 100%;
 }

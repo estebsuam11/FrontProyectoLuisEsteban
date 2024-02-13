@@ -1,5 +1,6 @@
 var instanciasGraficos = {};
 var configuracionesGraficos={};
+var dataDataSetFiltrada=[]
 var configuracionModalGrafico = null;
 var almacenTipoGrafico=null;
 var nombresColumnasDataSet=[];
@@ -7,7 +8,7 @@ var nombresColumnasDataSet=[];
 var datosPrueba = {
   labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
   datasets: [{
-      label: 'Ventas',
+      label: '',
       data: [120, 180, 200, 150, 220, 250],
       backgroundColor: 'rgba(54, 162, 235, 0.5)', // Color de las barras
       borderColor: 'rgba(54, 162, 235, 1)', // Color del borde de las barras
@@ -15,29 +16,103 @@ var datosPrueba = {
   }]
 };
 
+function CrearMedida(){
+
+}
+
+function ExtraerDatosEjeXYEjeY(nombreCampoEjeX,nombreCampoEjeY){
+var datosEjeX=ObtenerValoresUnicosDeDatosFiltrados(nombreCampoEjeX);
+var datosEjeY=
+}
+
+function ObtenerValoresUnicosDeDatosFiltrados(nombreCampo){
+  let uniqueValues = dataSetDashboard[0].reduce((acc, cur) => {
+    acc.add(cur[nombreCampo]);
+    return acc;
+}, new Set());
+}
+
+
+function GenerarConfiguracionDeDatosParaGrafica(datosEjeX,datosEjeY){
+  var datosPrueba = {
+    labels:datosEjeX,
+    datasets: [{
+        label: '',
+        data: datosEjeY,
+        borderWidth: 1
+    }]
+  };
+  
+}
+
 var divAeliminar;
+
+function llenarSelectoFiltro(nombreColumna,selector) {
+  var opcionesUnicas = new Set();
+  dataSetDashboard[0].forEach(function(item) {
+      opcionesUnicas.add(item[nombreColumna]);
+  });
+
+      selector.innerHTML = '';
+      opcionesUnicas.forEach(function(opcion) {
+          var option = document.createElement('option');
+          option.text = opcion;
+          selector.add(option);
+      });
+
+}
+
+
+function FiltrarDatosDataSet(filtros){
+  var resultadosFiltrados = dataSetDashboard.slice(); // Copia los datos originales
+
+    filtros.forEach(function(filtro) {
+        var columna = filtro.columna;
+        var valor = filtro.valor;
+        dataDataSetFiltrada = resultadosFiltrados[0].filter(function(item) {
+            return item[columna] === valor;
+        });
+    });
+
+}
+
+
+function AgregarFiltroAlLienzo(){
+  var nombreCampo=document.getElementById("selectCrearFiltro").value;
+  var contenedorGraficas=document.getElementById("cuerpoPagina");
+  var divContenedor = document.createElement('div');
+  divContenedor.id="elementoFiltro"+"_"+nombreCampo;
+  divContenedor.classList.add('resize-drag'); // Agregar la clase para hacer draggable
+  divContenedor.style.width = '100px';
+  divContenedor.style.height = '100px';
+  divContenedor.style.border = '1px solid black';
+  divContenedor.style.position = 'relative'; 
+
+
+  var selectContenidoFiltro = document.createElement('select');
+  selectContenidoFiltro.id="selectFiltro"+nombreCampo;// Establecer el ancho del canvas igual al ancho del div contenedor
+  divContenedor.appendChild(selectContenidoFiltro);
+  contenedorGraficas.appendChild(divContenedor);
+  llenarSelectoFiltro(nombreCampo,selectContenidoFiltro)
+  CerrarModalCrearFiltro();
+  selectContenidoFiltro.style = "width:100%"
+
+}
 
 function ExtrarNombresCamposColumnas(){
   nombresColumnasDataSet=[];
   nombresColumnasDataSet = Object.keys(dataSetDashboard[0][0]);
 }
 
-function AgregarNombresCamposASelect() {
-  var ejeX = document.getElementById("selectX");
-  var ejeY = document.getElementById("selectY");
-
-  nombresColumnasDataSet.forEach(function(opcion) {
-    // Crear un nuevo elemento de opción para el eje X
-    var optionX = document.createElement("option");
-    optionX.text = opcion;
-    optionX.value = opcion;
-    ejeX.add(optionX);
-
-    // Crear un nuevo elemento de opción para el eje Y
-    var optionY = document.createElement("option");
-    optionY.text = opcion;
-    optionY.value = opcion;
-    ejeY.add(optionY);
+function AgregarNombresCamposASelect(idSelects) {
+  idSelects.forEach(selectModal=>{
+    var selectALlenar = document.getElementById(selectModal);
+    nombresColumnasDataSet.forEach(function(opcion) {
+      var optionX = document.createElement("option");
+      optionX.text = opcion;
+      optionX.value = opcion;
+      selectALlenar.add(optionX); 
+    });
   });
 }
 
@@ -46,6 +121,23 @@ function AbrirModalCrearGrafico(tipoGrafico){
    almacenTipoGrafico=tipoGrafico;
   $('#modalCrearGrafica').modal('show');
 }
+
+function AbrirModalCrearFiltro(){
+  // almacenTipoGrafico=tipoGrafico;
+ $('#modalCrearFiltro').modal('show');
+}
+
+function CerrarModalCrearFiltro(){
+  // almacenTipoGrafico=tipoGrafico;
+ $('#modalCrearFiltro').modal('hide');
+}
+
+$('#modalCrearFiltro').on('shown.bs.modal', function () {
+  let idSelects=["selectCrearFiltro"]
+  AgregarNombresCamposASelect(idSelects);
+});
+
+
 
 $('#selectX, #selectY').change(function() {
   var selectedValue = $(this).val(); // Obtener el valor seleccionado en el select que activó el evento change
@@ -62,7 +154,8 @@ $('#selectX, #selectY').change(function() {
 });
 
 $('#modalCrearGrafica').on('shown.bs.modal', function () {
-  AgregarNombresCamposASelect();
+  let idSelects=["selectX","selectY"]
+  AgregarNombresCamposASelect(idSelects);
 });
 
 function CerrarModalCrearGrafico(){
@@ -323,13 +416,34 @@ function AgregarGraficaAlLienzo(){
 
   // Crear el botón para eliminar
   var botonEliminar = document.createElement('button');
-  botonEliminar.textContent = 'x';
+  var iconoEliminar = document.createElement("i");
+  iconoEliminar.classList.add("fas", "fa-trash-alt"); // Añade las clases de Font Awesome
+  botonEliminar.appendChild(iconoEliminar);
   botonEliminar.style.position = 'absolute'; // Establecer posición absoluta
   botonEliminar.style.top = '5px'; // Colocar 5px de distancia desde la parte superior
   botonEliminar.style.right = '5px'; // Colocar 5px de distancia desde la parte derecha
   botonEliminar.onclick = function() {
     AbrirModalConfirmarEliminación(divContenedor);
   };
+
+  var botonEditar = document.createElement('button');
+  var iconoEditar = document.createElement("i");
+  iconoEditar.classList.add("fas", "fa-pencil-alt");
+  botonEditar.appendChild(iconoEditar);
+  botonEditar.style.position = 'absolute'; // Establecer posición absoluta
+  botonEditar.style.top = '5px'; // Colocar 5px de distancia desde la parte superior
+  botonEditar.style.right = '40px'; // Colocar 5px de distancia desde la parte derecha
+  botonEditar.onclick = function() {
+    AbrirModalConfirmarEliminación(divContenedor);
+  };
+
+
+  var etiqueta = document.createElement("span");
+  etiqueta.contentEditable = true; // Hacer el elemento editable
+  etiqueta.innerText = "luis";
+  etiqueta.classList.add("editarNombreGrafica");
+  etiqueta.style.cursor = "text"
+  etiqueta.style.color=""
 
   // Crear el canvas y configurarlo
   var canvas = document.createElement('canvas');
@@ -343,7 +457,8 @@ function AgregarGraficaAlLienzo(){
 
   // Agregar el botón eliminar al div contenedor
   divContenedor.appendChild(botonEliminar);
-
+  divContenedor.appendChild(botonEditar);
+  divContenedor.appendChild(etiqueta);
   // Agregar el div contenedor al contenedor de gráficas
   contenedorGraficas.appendChild(divContenedor);
 
@@ -351,7 +466,7 @@ function AgregarGraficaAlLienzo(){
   var ejex = $('#selectx').val();
   var ejey=  $('#selecty').val();
 
-  AgregarNombresCamposASelect()
+
  configDisenoGrafico= {
     "tipoGrafico": almacenTipoGrafico,
     "color": colorElegido,
@@ -373,6 +488,8 @@ function AgregarLienzoADashboard() {
   var contenedorGraficas = document.getElementById("cuerpoPagina");
   contenedorGraficas.innerHTML='';
   contenedorGraficas.style.display = "flex";
+  contenedorGraficas.classList.remove("cuerpoPagina");
+  contenedorGraficas.classList.add("cuerpoPaginaEnDashboard");
   contenedorGraficas.style.flexWrap = "wrap";
   agregarSidebarAlBody();
   
@@ -420,7 +537,6 @@ function RecrearCanvas(idCanvas,idContenedor){
           <svg fill="#000000" width="72px" height="72px" viewBox="0 0 1920.00 1920.00" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="30.72"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="m1352.005.012 176.13 176.13-783.864 783.989 783.864 783.74L1352.005 1920 391.887 960.13z" fill-rule="evenodd"></path> </g></svg>
           </div>
             <span>Agregar Gráfica</span>
-            
             <ul>
             <li>
             <div class="opcion-boton">
@@ -448,6 +564,12 @@ function RecrearCanvas(idCanvas,idContenedor){
             </div>
             </li>
             <span>Gráfico de Dispersión</span>
+            <li>
+            <div class="opcion-boton">
+            <svg width="70px" onclick="AbrirModalCrearFiltro()" height="70px" viewBox="0 0 72 72" id="emoji" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="color"> <polyline fill="#fcea2b" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" points="36,10.9792 11,10.9792 11,16.0207 31.5,34.25 31.5,56.021 40.5,60.9792 40.5,34.25 61,16.0208 61,10.9792 36,10.9792"></polyline> <polygon fill="#F1B31C" stroke="none" points="36,57.1932 36,57.1932 39.2683,58.875 39.2683,33.9081 59.7683,15.5833 59.7683,12.1715 49.5183,12.1715 49.5183,16.0254 36.0183,32.8581"></polygon> <path fill="#fcea2b" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M68.0011,43.9411"></path> </g> <g id="hair"></g> <g id="skin"></g> <g id="skin-shadow"></g> <g id="line"> <polyline fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" points="36,10.9792 11,10.9792 11,16.0207 31.5,34.25 31.5,56.021 40.5,60.9792 40.5,34.25 61,16.0208 61,10.9792 36,10.9792"></polyline> <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M68.0011,43.9411"></path> </g> </g></svg>
+            </div>
+            </li>
+            <span>Agregar Filtro</span>
 
             </ul>
           </div>
