@@ -97,7 +97,7 @@ function AgregarFiltroAlLienzo(){
   llenarSelectoFiltro(nombreCampo,selectContenidoFiltro)
   CerrarModalCrearFiltro();
   selectContenidoFiltro.style = "width:100%"  
-  CapturarSeleccion();
+  CapturarYAplicarSeleccion();
 }
 
 function AplicarFiltrosAlDashboard() {
@@ -109,7 +109,7 @@ function AplicarFiltrosAlDashboard() {
 }
 
 
-function CapturarSeleccion() {
+function CapturarYAplicarSeleccion() {
   document.addEventListener('change', function(event) {
       var select = event.target;
       var nombreFiltro=select.id.split("-")[1];
@@ -132,7 +132,7 @@ function CapturarSeleccion() {
         }
 
       }
-
+      AplicarFiltrosAlDashboard()
   });
 }
 
