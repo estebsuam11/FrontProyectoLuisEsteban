@@ -4,7 +4,8 @@ var dataDataSetFiltrada=[]
 var configuracionModalGrafico = null;
 var almacenTipoGrafico=null;
 var nombresColumnasDataSet=[];
-
+var almacenarFiltros=[];
+var almacenamientoDatosEjesGraficos={};
 var datosPrueba = {
   labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
   datasets: [{
@@ -16,33 +17,32 @@ var datosPrueba = {
   }]
 };
 
-function CrearMedida(){
+function CrearValoresEjes(nombreCampoEjeX,nombreCampoEjeY){
+    let totals = dataSetDashboard[0].reduce((acc, cur) => {
+        let value = cur[nombreCampoEjeX];
+        acc[value] = (acc[value] || 0) + parseFloat(cur[nombreCampoEjeY]);
+        return acc;
+    }, {});
 
+    return totals;
 }
 
-function ExtraerDatosEjeXYEjeY(nombreCampoEjeX,nombreCampoEjeY){
-var datosEjeX=ObtenerValoresUnicosDeDatosFiltrados(nombreCampoEjeX);
-var datosEjeY=
-}
-
-function ObtenerValoresUnicosDeDatosFiltrados(nombreCampo){
-  let uniqueValues = dataSetDashboard[0].reduce((acc, cur) => {
-    acc.add(cur[nombreCampo]);
-    return acc;
-}, new Set());
+function PurificarDatos(){
+  datosLimpios = dataSetDashboard[0].filter(registro => {
+    return !Object.values(registro).some(value => value === null || value === "" || value === undefined);
+});
+dataSetDashboard.length = 0;
+dataSetDashboard.push(datosLimpios);
 }
 
 
-function GenerarConfiguracionDeDatosParaGrafica(datosEjeX,datosEjeY){
-  var datosPrueba = {
-    labels:datosEjeX,
-    datasets: [{
-        label: '',
-        data: datosEjeY,
-        borderWidth: 1
-    }]
-  };
-  
+
+
+function GuardarValoresEjeXYEjeY(idCanvas,datosEjeX,datosEjeY){
+
+almacenamientoDatosEjesGraficos[idCanvas]={
+  "datosEjeX":datosEjeX,
+  "datosEjeY":datosEjeY};
 }
 
 var divAeliminar;
@@ -90,14 +90,53 @@ function AgregarFiltroAlLienzo(){
 
 
   var selectContenidoFiltro = document.createElement('select');
-  selectContenidoFiltro.id="selectFiltro"+nombreCampo;// Establecer el ancho del canvas igual al ancho del div contenedor
+  selectContenidoFiltro.id="selectFiltro-"+nombreCampo;// Establecer el ancho del canvas igual al ancho del div contenedor
+  selectContenidoFiltro.multiple = true; // Convertir en multi-select
   divContenedor.appendChild(selectContenidoFiltro);
   contenedorGraficas.appendChild(divContenedor);
   llenarSelectoFiltro(nombreCampo,selectContenidoFiltro)
   CerrarModalCrearFiltro();
-  selectContenidoFiltro.style = "width:100%"
-
+  selectContenidoFiltro.style = "width:100%"  
+  CapturarSeleccion();
 }
+
+function AplicarFiltrosAlDashboard() {
+  dataDataSetFiltrada = almacenarFiltros.reduce((filteredData, filtro) => {
+      return filteredData.filter(item => {
+          return item[filtro.campoFiltro] && filtro.valoresFiltro.includes(item[filtro.campoFiltro]);
+      });
+  }, dataSetDashboard[0]);
+}
+
+
+function CapturarSeleccion() {
+  document.addEventListener('change', function(event) {
+      var select = event.target;
+      var nombreFiltro=select.id.split("-")[1];
+
+      if (select && select.tagName === 'SELECT' && select.id.includes('selectFiltro')) {
+          var selectedOptions = Array.from(select.selectedOptions).map(option => option.value);
+          if (selectedOptions.length === 0) {
+            var filtroExistenteIndex = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === nombreFiltro);
+            if (filtroExistenteIndex !== -1) {
+                almacenarFiltros.splice(filtroExistenteIndex, 1);
+            }
+        } else {
+            var filtroExistenteIndex = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === nombreFiltro);
+            if (filtroExistenteIndex !== -1) {
+                almacenarFiltros[filtroExistenteIndex].valoresFiltro = selectedOptions;
+            } else {
+
+                almacenarFiltros.push({ "campoFiltro": nombreFiltro, "valoresFiltro": selectedOptions });
+            }
+        }
+
+      }
+
+  });
+}
+
+
 
 function ExtrarNombresCamposColumnas(){
   nombresColumnasDataSet=[];
@@ -463,8 +502,8 @@ function AgregarGraficaAlLienzo(){
   contenedorGraficas.appendChild(divContenedor);
 
   var colorElegido = $('#colorPicker').val();
-  var ejex = $('#selectx').val();
-  var ejey=  $('#selecty').val();
+  var ejex = $('#selectX').val();
+  var ejey=  $('#selectY').val();
 
 
  configDisenoGrafico= {
@@ -474,14 +513,46 @@ function AgregarGraficaAlLienzo(){
     "ejey": ejey
   };
 
+ var datosExtraidos= ExtraerDatosEjeXYEjeY(ejex,ejey);
+ var dataLlenarGrafico=GenerarConfiguracionDeDatosParaGrafica(datosExtraidos)
 
 
-  var configuracionGrafica=GenerarConfiguracionGrafica(almacenTipoGrafico,datosPrueba,idCanvas,configDisenoGrafico);
+  var configuracionGrafica=GenerarConfiguracionGrafica(almacenTipoGrafico,dataLlenarGrafico,idCanvas,configDisenoGrafico);
   configuracionesGraficos[idCanvas]=configuracionGrafica;
   almacenTipoGrafico=null;
   // Generar la gráfica en el canvas
   generarGrafica(idGrafica,false,configuracionGrafica);
   CerrarModalCrearGrafico();
+}
+
+function ExtraerDatosEjeXYEjeY(nombreCampoEjeX,nombreCampoEjeY){
+  // var datosEjeX=ObtenerValoresUnicosDeDatosFiltrados(nombreCampoEjeX);
+  var valoresEjes=CrearValoresEjes(nombreCampoEjeX,nombreCampoEjeY);
+  
+  const valoresEjeX = [];
+  const valoresEjeY = [];
+  
+  for (let llave in valoresEjes) {
+      valoresEjeX.push(llave);
+      valoresEjeY.push(valoresEjes[llave]);
+  }
+
+  return [valoresEjeX,valoresEjeY];
+  
+  }
+
+
+function GenerarConfiguracionDeDatosParaGrafica(datosEjes){
+  var datosGrafico = {
+    labels:datosEjes[0],
+    datasets: [{
+        label: '',
+        data: datosEjes[1],
+        borderWidth: 1
+    }]
+  };
+
+  return datosGrafico;
 }
 
 function AgregarLienzoADashboard() {
