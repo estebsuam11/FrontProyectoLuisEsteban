@@ -1,25 +1,18 @@
 var instanciasGraficos = {};
-var configuracionesGraficos={};
-var almacenamientoDatosEjesGraficos={};
-var hayFiltros=false;
-var dataDataSetFiltrada=[]
+var configuracionesGraficos = {};
+var almacenamientoDatosEjesGraficos = {};
+var hayFiltros = false;
+var dataDataSetFiltrada = []
 var configuracionModalGrafico = null;
-var almacenTipoGrafico=null;
-var nombresColumnasDataSet=[];
-var almacenarFiltros=[];
-var datosPrueba = {
-  labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
-  datasets: [{
-      label: '',
-      data: [120, 180, 200, 150, 220, 250],
-      backgroundColor: 'rgba(54, 162, 235, 0.5)', // Color de las barras
-      borderColor: 'rgba(54, 162, 235, 1)', // Color del borde de las barras
-      borderWidth: 1
-  }]
-};
+var almacenTipoGrafico = null;
+var nombresColumnasDataSet = [];
+var almacenarFiltros = [];
+var almacenCamposUsadosEnFiltros = [];
 
-function CrearValoresEjes(nombreCampoEjeX,nombreCampoEjeY){
-  var dataAUsar=hayFiltros?dataDataSetFiltrada: dataSetDashboard[0];
+function CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY) {
+    var dataAUsar = hayFiltros
+        ? dataDataSetFiltrada
+        : dataSetDashboard[0];
     let totals = dataAUsar.reduce((acc, cur) => {
         let value = cur[nombreCampoEjeX];
         acc[value] = (acc[value] || 0) + parseFloat(cur[nombreCampoEjeY]);
@@ -29,635 +22,754 @@ function CrearValoresEjes(nombreCampoEjeX,nombreCampoEjeY){
     return totals;
 }
 
-function PurificarDatos(){
-  datosLimpios = dataSetDashboard[0].filter(registro => {
-    return !Object.values(registro).some(value => value === null || value === "" || value === undefined);
-});
-dataSetDashboard.length = 0;
-dataSetDashboard.push(datosLimpios);
+function PurificarDatos() {
+    datosLimpios = dataSetDashboard[0].filter(registro => {
+        return !Object
+            .values(registro)
+            .some(value => value === null || value === "" || value === undefined);
+    });
+    dataSetDashboard.length = 0;
+    dataSetDashboard.push(datosLimpios);
 }
 
+function AplicarEdicionAGrafico() {
+    let idContenedor = idGraficaAeditar.replace(/-canvas$/, '');
+    let campoX = $('#selectXEditarGrafica').val();
+    let campoY = $('#selectYEditarGrafica').val();
+    let colorElegido = $('#colorPickerEditarGrafica').val();
+    CambiarValoresEjesGrafico(idGraficaAeditar, campoX, campoY, colorElegido);
+    RecrearCanvas(idGraficaAeditar, idContenedor)
+    CerrarModalEditarGrafica();
+}
 
+function CambiarValoresEjesGrafico(
+    idGrafico,
+    nombreCampoX,
+    nombreCampoY,
+    colorElegido
+) {
+    var datosEjes = ExtraerDatosEjeXYEjeY(nombreCampoX, nombreCampoY);
+    if (colorElegido != null) {
+        configuracionesGraficos[idGrafico]
+            .data
+            .datasets[0]
+            .backgroundColor = colorElegido;
+    }
+    configuracionesGraficos[idGrafico].data.labels = datosEjes[0];
+    configuracionesGraficos[idGrafico]
+        .data
+        .datasets[0]
+        .data = datosEjes[1];
 
+    GuardarValoresEjeXYEjeY(
+        idGraficaAeditar,
+        datosEjes[0],
+        datosEjes[1],
+        nombreCampoX,
+        nombreCampoY,
+        colorElegido
+    );
+}
 
-function GuardarValoresEjeXYEjeY(idCanvas,datosEjeX,datosEjeY,ejex,ejey){
-
-almacenamientoDatosEjesGraficos[idCanvas]={
-  "nombreCampoEjeX":ejex,
-  "nombreCampoEjeY":ejey,
-  "datosEjeX":datosEjeX,
-  "datosEjeY":datosEjeY};
+function GuardarValoresEjeXYEjeY(
+    idCanvas,
+    datosEjeX,
+    datosEjeY,
+    ejex,
+    ejey,
+    colorElegido
+) {
+    almacenamientoDatosEjesGraficos[idCanvas] = {
+        "nombreCampoEjeX": ejex,
+        "nombreCampoEjeY": ejey,
+        "datosEjeX": datosEjeX,
+        "datosEjeY": datosEjeY,
+        "colorElegido": colorElegido
+    };
 }
 
 var divAeliminar;
 var filtroAEliminar;
+var idGraficaAeditar;
 
-function llenarSelectoFiltro(nombreColumna,selector) {
-  var opcionesUnicas = new Set();
-  dataSetDashboard[0].forEach(function(item) {
-      opcionesUnicas.add(item[nombreColumna]);
-  });
+function llenarSelectoFiltro(nombreColumna, selector) {
+    var opcionesUnicas = new Set();
+    dataSetDashboard[0].forEach(function (item) {
+        opcionesUnicas.add(item[nombreColumna]);
+    });
 
-      selector.innerHTML = '';
-      opcionesUnicas.forEach(function(opcion) {
-          var option = document.createElement('option');
-          option.text = opcion;
-          selector.add(option);
-      });
+    selector.innerHTML = '';
+    opcionesUnicas.forEach(function (opcion) {
+        var option = document.createElement('option');
+        option.text = opcion;
+        selector.add(option);
+    });
 
 }
 
+function validarFiltroExistente(nombreCampo) {
+    var divPadre = document.getElementById("cuerpoPagina");
+    var divsHijos = divPadre.getElementsByTagName('div');
+    var tieneIdBuscado = false;
+    for (var i = 0; i < divsHijos.length; i++) {
+        if (divsHijos[i].id === 'elementoFiltro_' + nombreCampo) {
+            tieneIdBuscado = true;
+            break;
+        }
+    }
 
-function AgregarFiltroAlLienzo(){
-  var nombreCampo=document.getElementById("selectCrearFiltro").value;
-  var contenedorGraficas=document.getElementById("cuerpoPagina");
-  var divContenedor = document.createElement('div');
-  var idElementoContenedor="elementoFiltro"+"_"+nombreCampo;
-  divContenedor.id=idElementoContenedor;
-  divContenedor.classList.add('resize-drag'); // Agregar la clase para hacer draggable
-  divContenedor.style.width = '100px';
-  divContenedor.style.height = '100px';
-  divContenedor.style.border = '1px solid black';
-  divContenedor.style.position = 'relative'; 
+    return tieneIdBuscado;
+}
 
-   // Crear el botón para eliminar
-   var botonEliminar = document.createElement('button');
-   var iconoEliminar = document.createElement("i");
-   iconoEliminar.classList.add("fas", "fa-trash-alt"); // Añade las clases de Font Awesome
-   botonEliminar.appendChild(iconoEliminar);
-   botonEliminar.style.position = 'absolute'; // Establecer posición absoluta
-   botonEliminar.style.top = '5px'; // Colocar 5px de distancia desde la parte superior
-   botonEliminar.style.right = '5px'; // Colocar 5px de distancia desde la parte derecha
-   botonEliminar.onclick = function() {
-     AbrirModalConfirmarEliminaciónFiltro(divContenedor);
-   };
+function AgregarFiltroAlLienzo() {
+    var nombreCampo = document
+        .getElementById("selectCrearFiltro")
+        .value;
+    if (!validarFiltroExistente(nombreCampo)) {
+        var contenedorGraficas = document.getElementById("cuerpoPagina");
+        var divContenedor = document.createElement('div');
+        var idElementoContenedor = "elementoFiltro_" + nombreCampo;
+        divContenedor.id = idElementoContenedor;
+        divContenedor
+            .classList
+            .add('resize-drag');
+        divContenedor.style.width = '100px';
+        divContenedor.style.height = '100px';
+        divContenedor.style.border = '1px solid black';
+        divContenedor.style.position = 'relative';
+        var botonEliminar = document.createElement('button');
+        var iconoEliminar = document.createElement("i");
+        iconoEliminar
+            .classList
+            .add("fas", "fa-trash-alt");
+        botonEliminar.appendChild(iconoEliminar);
+        botonEliminar.style.position = 'absolute';
+        botonEliminar.style.top = '5px';
+        botonEliminar.style.right = '5px';
+        botonEliminar.onclick = function () {
+            AbrirModalConfirmarEliminaciónFiltro(divContenedor);
+        };
 
+        var botonEditar = document.createElement('button');
+        var iconoEditar = document.createElement("i");
+        iconoEditar
+            .classList
+            .add("fas", "fa-pencil-alt");
+        botonEditar.appendChild(iconoEditar);
+        botonEditar.style.position = 'absolute';
+        botonEditar.style.top = '5px'; 
+        botonEditar.style.right = '40px'; 
+        botonEditar.onclick = function () {
+            AbrirModalConfirmarEliminación(divContenedor);
+        };
+        var selectContenidoFiltro = document.createElement('select');
+        selectContenidoFiltro.id = "selectFiltro-" + nombreCampo;
+        selectContenidoFiltro.multiple = true;
+        selectContenidoFiltro.style.marginTop = '25px';
+        divContenedor.appendChild(selectContenidoFiltro);
+        divContenedor.appendChild(botonEditar);
+        divContenedor.appendChild(botonEliminar);
+        contenedorGraficas.appendChild(divContenedor);
+        llenarSelectoFiltro(nombreCampo, selectContenidoFiltro)
+        $('#selectFiltro-' + nombreCampo).select2({width: '98%'});
+        var select2Container = $('#selectFiltro-' + nombreCampo).next(
+            '.select2-container'
+        );
+        select2Container.css('top', '30px');
+        CerrarModalCrearFiltro();
+        selectContenidoFiltro.style = "width:100%"
+        CapturarYAplicarSeleccion();
+        hacerDraggable(null, idElementoContenedor, false);
+    } else {
+        toastr.error(
+            "Ya existe un filtro usando el campo llamado " + nombreCampo
+        );
+    }
 
-  var selectContenidoFiltro = document.createElement('select');
-selectContenidoFiltro.id = "selectFiltro-" + nombreCampo;
-selectContenidoFiltro.multiple = true;
-
-
-
-// Establecer estilos para simular una flecha desplegable
-  divContenedor.appendChild(selectContenidoFiltro);
-  divContenedor.appendChild(botonEliminar);
-  contenedorGraficas.appendChild(divContenedor);
-  llenarSelectoFiltro(nombreCampo,selectContenidoFiltro)
-  $('#selectFiltro-' + nombreCampo).select2({ width: '100%' }); 
-  CerrarModalCrearFiltro();
-  selectContenidoFiltro.style = "width:100%"  
-  CapturarYAplicarSeleccion();
-  hacerDraggable(null,idElementoContenedor,false);
 }
 
 function FiltrarDatosDashboard() {
-  dataDataSetFiltrada = almacenarFiltros.reduce((filteredData, filtro) => {
-      return filteredData.filter(item => {
-          return item[filtro.campoFiltro] && filtro.valoresFiltro.includes(item[filtro.campoFiltro]);
-      });
-  }, dataSetDashboard[0]);
+    dataDataSetFiltrada = almacenarFiltros.reduce((filteredData, filtro) => {
+        return filteredData.filter(item => {
+            return item[filtro.campoFiltro] && filtro
+                .valoresFiltro
+                .includes(item[filtro.campoFiltro]);
+        });
+    }, dataSetDashboard[0]);
 }
 
-function AplicarFiltrosATodasLasGraficas(){
-  var idsGraficas =Object.keys(almacenamientoDatosEjesGraficos);
-  idsGraficas.forEach(idGrafico=>{
-let filtroConfigGrafica= almacenamientoDatosEjesGraficos[idGrafico];
-var datosEjes= ExtraerDatosEjeXYEjeY(filtroConfigGrafica.nombreCampoEjeX,filtroConfigGrafica.nombreCampoEjeY);
-configuracionesGraficos[idGrafico].data.labels=datosEjes[0];
-configuracionesGraficos[idGrafico].data.datasets[0].data=datosEjes[1];
+function AplicarFiltrosATodasLasGraficas() {
+    var idsGraficas = Object.keys(almacenamientoDatosEjesGraficos);
+    idsGraficas.forEach(idGrafico => {
+        let filtroConfigGrafica = almacenamientoDatosEjesGraficos[idGrafico];
+        var datosEjes = ExtraerDatosEjeXYEjeY(
+            filtroConfigGrafica.nombreCampoEjeX,
+            filtroConfigGrafica.nombreCampoEjeY
+        );
+        configuracionesGraficos[idGrafico].data.labels = datosEjes[0];
+        configuracionesGraficos[idGrafico]
+            .data
+            .datasets[0]
+            .data = datosEjes[1];
 
-let idContenedor = idGrafico.replace(/-canvas$/, '');
-RecrearCanvas(idGrafico,idContenedor);
-  });
+        let idContenedor = idGrafico.replace(/-canvas$/, '');
+        RecrearCanvas(idGrafico, idContenedor);
+    });
 }
-
-
-
 
 function CapturarYAplicarSeleccion() {
-  $('#cuerpoPagina').on('change', 'select', function(event) {
-      var select = event.target;
-      var nombreFiltro = select.id.split("-")[1];
+    $('#cuerpoPagina').on('change', 'select', function (event) {
+        var select = event.target;
+        var nombreFiltro = select
+            .id
+            .split("-")[1];
 
-      if (select && select.tagName === 'SELECT' && select.id.includes('selectFiltro')) {
-          var selectedOptions = Array.from(select.selectedOptions).map(option => option.value);
-          if (selectedOptions.length === 0) {
-              var filtroExistenteIndex = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === nombreFiltro);
-              if (filtroExistenteIndex !== -1) {
-                  almacenarFiltros.splice(filtroExistenteIndex, 1);
-              }
-          } else {
-              var filtroExistenteIndex = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === nombreFiltro);
-              if (filtroExistenteIndex !== -1) {
-                  almacenarFiltros[filtroExistenteIndex].valoresFiltro = selectedOptions;
-              } else {
-                  almacenarFiltros.push({ "campoFiltro": nombreFiltro, "valoresFiltro": selectedOptions });
-              }
-          }
-          almacenarFiltros.length > 0 ? hayFiltros = true : hayFiltros = false;
-          FiltrarDatosDashboard()
-          AplicarFiltrosATodasLasGraficas();
-      }
-  });
+        if (select && select.tagName === 'SELECT' && select.id.includes('selectFiltro')) {
+            var selectedOptions = Array
+                .from(select.selectedOptions)
+                .map(option => option.value);
+            if (selectedOptions.length === 0) {
+                var filtroExistenteIndex = almacenarFiltros.findIndex(
+                    filtro => filtro.campoFiltro === nombreFiltro
+                );
+                if (filtroExistenteIndex !== -1) {
+                    almacenarFiltros.splice(filtroExistenteIndex, 1);
+                }
+            } else {
+                var filtroExistenteIndex = almacenarFiltros.findIndex(
+                    filtro => filtro.campoFiltro === nombreFiltro
+                );
+                if (filtroExistenteIndex !== -1) {
+                    almacenarFiltros[filtroExistenteIndex].valoresFiltro = selectedOptions;
+                } else {
+                    almacenarFiltros.push(
+                        {"campoFiltro": nombreFiltro, "valoresFiltro": selectedOptions}
+                    );
+                }
+            }
+            almacenarFiltros.length > 0
+                ? hayFiltros = true
+                : hayFiltros = false;
+            FiltrarDatosDashboard()
+            AplicarFiltrosATodasLasGraficas();
+        }
+    });
 }
 
-
-
-
-function ExtrarNombresCamposColumnas(){
-  nombresColumnasDataSet=[];
-  nombresColumnasDataSet = Object.keys(dataSetDashboard[0][0]);
+function ExtrarNombresCamposColumnas() {
+    nombresColumnasDataSet = [];
+    nombresColumnasDataSet = Object.keys(dataSetDashboard[0][0]);
 }
 
 function AgregarNombresCamposASelect(idSelects) {
-  idSelects.forEach(selectModal=>{
-    var selectALlenar = document.getElementById(selectModal);
-    nombresColumnasDataSet.forEach(function(opcion) {
-      var optionX = document.createElement("option");
-      optionX.text = opcion;
-      optionX.value = opcion;
-      selectALlenar.add(optionX); 
+    idSelects.forEach(selectModal => {
+        var selectALlenar = document.getElementById(selectModal);
+        nombresColumnasDataSet.forEach(function (opcion) {
+            var optionX = document.createElement("option");
+            optionX.text = opcion;
+            optionX.value = opcion;
+            selectALlenar.add(optionX);
+        });
     });
-  });
 }
 
-
-function AbrirModalCrearGrafico(tipoGrafico){
-   almacenTipoGrafico=tipoGrafico;
-  $('#modalCrearGrafica').modal('show');
+function AbrirModalCrearGrafico(tipoGrafico) {
+    almacenTipoGrafico = tipoGrafico;
+    $('#modalCrearGrafica').modal('show');
 }
 
-function AbrirModalCrearFiltro(){
-  // almacenTipoGrafico=tipoGrafico;
- $('#modalCrearFiltro').modal('show');
+function AbrirModalCrearFiltro() {
+    // almacenTipoGrafico=tipoGrafico;
+    $('#modalCrearFiltro').modal('show');
 }
 
-function CerrarModalCrearFiltro(){
-  // almacenTipoGrafico=tipoGrafico;
- $('#modalCrearFiltro').modal('hide');
+function CerrarModalCrearFiltro() {
+    // almacenTipoGrafico=tipoGrafico;
+    $('#modalCrearFiltro').modal('hide');
 }
 
 $('#modalCrearFiltro').on('shown.bs.modal', function () {
-  let idSelects=["selectCrearFiltro"]
-  AgregarNombresCamposASelect(idSelects);
+    let idSelects = ["selectCrearFiltro"]
+    AgregarNombresCamposASelect(idSelects);
 });
 
+$('#selectX, #selectY').change(function () {
+    var selectedValue = $(this).val(); 
 
+    $('#selectX, #selectY')
+        .not($(this))
+        .find('option')
+        .prop('disabled', false);
+    $('#selectX, #selectY')
+        .not($(this))
+        .find('option[value="' + selectedValue + '"]')
+        .prop('disabled', true); 
 
-$('#selectX, #selectY').change(function() {
-  var selectedValue = $(this).val(); // Obtener el valor seleccionado en el select que activó el evento change
-
-  // Desactivar la selección en el otro select
-  $('#selectX, #selectY').not($(this)).find('option').prop('disabled', false); // Habilitar todas las opciones
-  $('#selectX, #selectY').not($(this)).find('option[value="' + selectedValue + '"]').prop('disabled', true); // Deshabilitar la opción seleccionada
-
-  // Si se selecciona una opción diferente en el otro select, volver a habilitar la opción seleccionada en este select
-  $('#selectX, #selectY').not($(this)).change(function() {
-    var deselectedValue = $(this).val(); // Obtener el valor seleccionado en el otro select
-    $(this).find('option[value="' + deselectedValue + '"]').prop('disabled', false); // Habilitar la opción seleccionada
-  });
+    $('#selectX, #selectY')
+        .not($(this))
+        .change(function () {
+            var deselectedValue = $(this).val(); 
+            $(this)
+                .find('option[value="' + deselectedValue + '"]')
+                .prop('disabled', false); 
+        });
 });
 
 $('#modalCrearGrafica').on('shown.bs.modal', function () {
-  let idSelects=["selectX","selectY"]
-  AgregarNombresCamposASelect(idSelects);
+    let idSelects = ["selectX", "selectY"]
+    AgregarNombresCamposASelect(idSelects);
 });
 
-function CerrarModalCrearGrafico(){
-  $('#modalCrearGrafica').modal('hide');
+function CerrarModalCrearGrafico() {
+    $('#modalCrearGrafica').modal('hide');
 }
 
 function generarIdContenedorGrafica() {
-  var id = "Grafico-numero-" + generarGUID();
-  return id;
+    var id = "Grafico-numero-" + generarGUID();
+    return id;
 }
-
-
 
 function generarGUID() {
-  // Genera un GUID aleatorio
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0,
-          v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-  });
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x'
+                ? r
+                : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
-function GenerarConfiguracionGrafica(tipoGrafico,data,idCanvas,configDisenoGrafico){
-  function deepCopy(obj) {
-    if (typeof obj !== 'object' || obj === null) {
-      return obj;
-    }
-    
-    if (Array.isArray(obj)) {
-      return obj.map(deepCopy);
-    }
-    
-    const copy = {};
-    for (let key in obj) {
-      copy[key] = deepCopy(obj[key]);
-    }
-    
-    return copy;
-  }
-
-  
-  // Luego, en tu switch:
-  var configuracionGrafica;
-  switch (tipoGrafico) {
-    case 'bar':
-      configuracionGrafica = deepCopy({
-        type: 'bar',
-        data: data,
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        },
-      });
-      break;
-    case 'line':
-      configuracionGrafica = deepCopy({
-        type: 'line',
-        data: data
-      });
-      break;
-    case 'pie':
-      configuracionGrafica = deepCopy({
-        type: 'pie',
-        data: data,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: {
-            padding: {
-              left: 10,
-              right: 10,
-              top: 10,
-              bottom: 10
-            }
-          },
-          plugins: {
-            legend: {
-              position: 'right'
-            }
-          }
+function GenerarConfiguracionGrafica(
+    tipoGrafico,
+    data,
+    idCanvas,
+    configDisenoGrafico
+) {
+    function deepCopy(obj) {
+        if (typeof obj !== 'object' || obj === null) {
+            return obj;
         }
-      });
-      break;
-    case 'scatter':
-      configuracionGrafica = deepCopy({
-        type: 'scatter',
-        data: data,
-        options: {
-          scales: {
-            x: {
-              type: 'category',
-              title: {
-                display: true,
-                text: 'Mes'
-              }
-            },
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Ventas'
-              }
-            }
-          },
-          responsive: true
+
+        if (Array.isArray(obj)) {
+            return obj.map(deepCopy);
         }
-      });
-      break;
-    default:
-      console.log('Tipo de gráfica desconocido.');
-  }
 
+        const copy = {};
+        for (let key in obj) {
+            copy[key] = deepCopy(obj[key]);
+        }
 
-
-  configuracionGrafica.data.datasets.forEach(localDataSet => {
-    localDataSet.borderColor = "#000000"; 
-    if (tipoGrafico !== "pie") {
-      localDataSet.backgroundColor = configDisenoGrafico.color;
-    } else {
-      var color = Math.floor(Math.random() * 16777215).toString(16);  
-      localDataSet.backgroundColor = '#' + color;
+        return copy;
     }
-  });
 
-return configuracionGrafica
+    // Luego, en tu switch:
+    var configuracionGrafica;
+    switch (tipoGrafico) {
+        case 'bar':
+            configuracionGrafica = deepCopy({
+                type: 'bar',
+                data: data,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            break;
+        case 'line':
+            configuracionGrafica = deepCopy({type: 'line', data: data});
+            break;
+        case 'pie':
+            configuracionGrafica = deepCopy({
+                type: 'pie',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+            break;
+        case 'scatter':
+            configuracionGrafica = deepCopy({
+                type: 'scatter',
+                data: data,
+                options: {
+                    scales: {
+                        x: {
+                            type: 'category',
+                            title: {
+                                display: true,
+                                text: 'Mes'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Ventas'
+                            }
+                        }
+                    },
+                    responsive: true
+                }
+            });
+            break;
+        default:
+            console.log('Tipo de gráfica desconocido.');
+    }
+
+    configuracionGrafica
+        .data
+        .datasets
+        .forEach(localDataSet => {
+            localDataSet.borderColor = "#000000";
+            if (tipoGrafico !== "pie") {
+                localDataSet.backgroundColor = configDisenoGrafico.color;
+            } else {
+                var color = Math
+                    .floor(Math.random() * 16777215)
+                    .toString(16);
+                localDataSet.backgroundColor = '#' + color;
+            }
+        });
+
+    return configuracionGrafica
 }
 
-function generarGrafica(idDivContenedor,esRecreado,configuracionGrafica){
-    // Obtener el contexto del canvasm
-    var idCanvas=idDivContenedor+'-canvas';
-var ctx = document.getElementById(idDivContenedor+'-canvas').getContext('2d');
+function generarGrafica(idDivContenedor, esRecreado, configuracionGrafica) {
+    var idCanvas = idDivContenedor + '-canvas';
+    var ctx = document
+        .getElementById(idDivContenedor + '-canvas')
+        .getContext('2d');
 
+    if (esRecreado) {
+        destruirInstancia(idCanvas);
+    }
 
-if(esRecreado){
-destruirInstancia(idCanvas);
+    instanciasGraficos[idCanvas] = new Chart(ctx, configuracionGrafica);
+    hacerDraggable(idCanvas, idDivContenedor, true);
 }
-
-
-instanciasGraficos[idCanvas]  = new Chart(ctx, configuracionGrafica);
-hacerDraggable(idCanvas,idDivContenedor,true);
-}
-
 
 function destruirInstancia(idCanvas) {
-  // Verificar si existe un gráfico con ese ID y si es así, destruirlo
-  if (instanciasGraficos[idCanvas]) {
-      instanciasGraficos[idCanvas].destroy();
-      delete instanciasGraficos[idCanvas]; // Eliminar la referencia del objeto charts
-  }
+    if (instanciasGraficos[idCanvas]) {
+        instanciasGraficos[idCanvas].destroy();
+        delete instanciasGraficos[idCanvas]; 
+    }
 }
 
-function hacerDraggable(idCanvas,idContenedor,esGrafica) {
-  interact('#' + idContenedor)
-    .resizable({
-      // resize from all edges and corners
-      edges: { left: true, right: true, bottom: true, top: true },
-  
-      listeners: {
-        move (event) {
-          var target = event.target
-          var x = (parseFloat(target.getAttribute('data-x')) || 0)
-          var y = (parseFloat(target.getAttribute('data-y')) || 0)
-  
-          // update the element's style
-          target.style.width = event.rect.width + 'px'
-          target.style.height = event.rect.height + 'px'
-  
-          // translate when resizing from top or left edges
-          x += event.deltaRect.left
-          y += event.deltaRect.top
-  
-          target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
-  
-          target.setAttribute('data-x', x)
-          target.setAttribute('data-y', y)
-     if(esGrafica){
-      RecrearCanvas(idCanvas,idContenedor)
-     }
-          
-        }
-      },
-      modifiers: [
-        // keep the edges inside the parent
-        interact.modifiers.restrictEdges({
-          outer: 'parent'
-        }),
-  
-        // minimum size
-        interact.modifiers.restrictSize({
-          min: { width: 100, height: 50 }
+function hacerDraggable(idCanvas, idContenedor, esGrafica) {
+    interact('#' + idContenedor)
+        .resizable({
+            edges: {
+                left: true,
+                right: true,
+                bottom: true,
+                top: true
+            },
+
+            listeners: {
+                move(event) {
+                    var target = event.target
+                    var x = (parseFloat(target.getAttribute('data-x')) || 0)
+                    var y = (parseFloat(target.getAttribute('data-y')) || 0)
+                    target.style.width = event.rect.width + 'px'
+                    target.style.height = event.rect.height + 'px'
+                    x += event.deltaRect.left
+                    y += event.deltaRect.top
+
+                    target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+
+                    target.setAttribute('data-x', x)
+                    target.setAttribute('data-y', y)
+                    if (esGrafica) {
+                        RecrearCanvas(idCanvas, idContenedor)
+                    }
+
+                }
+            },
+            modifiers: [
+                // keep the edges inside the parent
+                interact
+                    .modifiers
+                    .restrictEdges({outer: 'parent'}),
+
+                // minimum size
+                interact
+                    .modifiers
+                    .restrictSize({
+                        min: {
+                            width: 100,
+                            height: 50
+                        }
+                    })
+            ],
+
+            inertia: true
         })
-      ],
-  
-      inertia: true
-    })
-    .draggable({
-      listeners: { move: window.dragMoveListener },
-      inertia: true,
-      modifiers: [
-        interact.modifiers.restrictRect({
-          containment: 'parent',
-          restriction: 'parent',
-          endOnly: true
-        })
-      ]
-    });
+        .draggable({
+            listeners: {
+                move: window.dragMoveListener
+            },
+            inertia: true,
+            modifiers: [
+                interact
+                    .modifiers
+                    .restrictRect({containment: 'parent', restriction: 'parent', endOnly: true})
+            ]
+        });
 }
 
 function ajustarTamanoCanvas(chart) {
-    // Obtener el canvas del gráfico
     var canvas = chart.canvas;
-
-    // Establecer el ancho y el alto deseados del canvas
-    var canvasAncho = 400; // Ejemplo de ancho
-    var canvasAlto = 400; // Ejemplo de alto
-
-    // Establecer el ancho y el alto del canvas
+    var canvasAncho = 400; 
+    var canvasAlto = 400; 
     canvas.width = canvasAncho;
     canvas.height = canvasAlto;
 
-    // Actualizar el gráfico
     chart.update({
-        duration: 0, // Opcional: establecer la duración de la animación a 0 para que no haya animación
-        lazy: false // Opcional: forzar la actualización inmediata del gráfico
+        duration: 0, 
+        lazy: false 
     });
 }
 
-
-function AbrirModalConfirmarEliminación(divContenedor){
-  divAeliminar = divContenedor;
-  $('#modalConfirmarEliminacio').modal('show');
+function AbrirModalConfirmarEliminación(divContenedor) {
+    divAeliminar = divContenedor;
+    $('#modalConfirmarEliminacio').modal('show');
 }
 
-function AbrirModalConfirmarEliminaciónFiltro(divContenedor){
-  filtroAEliminar = divContenedor;
-  $('#modalConfirmarEliminacionFiltro').modal('show');
+function AbrirModalEditarGrafica(idGrafica) {
+    idGraficaAeditar = idGrafica;
+    var datosGrafico = almacenamientoDatosEjesGraficos[idGrafica];
+    let idSelects = ["selectXEditarGrafica", "selectYEditarGrafica"]
+    AgregarNombresCamposASelect(idSelects);
+    $('#colorPickerEditarGrafica').val(datosGrafico.colorElegido);
+    $('#selectXEditarGrafica').val(datosGrafico.nombreCampoEjeX);
+    $('#selectYEditarGrafica').val(datosGrafico.nombreCampoEjeY);
+    $('#modalEditarGrafica').modal('show');
 }
 
-function CerrarModalConfirmarEliminacionFiltro(){
-  $('#modalConfirmarEliminacionFiltro').modal('hide');
+function CerrarModalEditarGrafica() {
+    idGraficaAeditar = null;
+    $('#modalEditarGrafica').modal('hide');
 }
 
-function EliminarGrafica(){
-  $(divAeliminar).remove();
+function AbrirModalConfirmarEliminaciónFiltro(divContenedor) {
+    filtroAEliminar = divContenedor;
+    $('#modalConfirmarEliminacionFiltro').modal('show');
+}
+
+function CerrarModalConfirmarEliminacionFiltro() {
+    $('#modalConfirmarEliminacionFiltro').modal('hide');
+}
+
+function EliminarGrafica() {
+    $(divAeliminar).remove();
     $('#modalConfirmarEliminacio').modal('hide');
-    let idElemento=divAeliminar.id+"-canvas";
+    let idElemento = divAeliminar.id + "-canvas";
     delete configuracionesGraficos[idElemento];
     delete instanciasGraficos[idElemento];
     delete almacenamientoDatosEjesGraficos[idElemento]
-    toastr.success("Gráfica eliminada correctamente"); 
+    toastr.success("Gráfica eliminada correctamente");
 }
 
-function EliminarFiltro(){
-  $(filtroAEliminar).remove();
+function EliminarFiltro() {
+    $(filtroAEliminar).remove();
     $('#modalConfirmarEliminacionFiltro').modal('hide');
-    let idElemento=filtroAEliminar.id;
-    var indiceSubrayado = idElemento.indexOf('_'); // Obtener la posición del primer subrayado
+    let idElemento = filtroAEliminar.id;
+    var indiceSubrayado = idElemento.indexOf('_');
     var resultado = idElemento.substring(indiceSubrayado + 1);
-var index = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === resultado);
-if (index !== -1) {
-    almacenarFiltros.splice(index, 1);
-}
+    var index = almacenarFiltros.findIndex(
+        filtro => filtro.campoFiltro === resultado
+    );
+    if (index !== -1) {
+        almacenarFiltros.splice(index, 1);
+    }
 
-    toastr.success("Filtro eliminado correctamente"); 
+    toastr.success("Filtro eliminado correctamente");
     FiltrarDatosDashboard()
     AplicarFiltrosATodasLasGraficas();
 }
 
-function AgregarGraficaAlLienzo(){
-  configuracionModalGrafico = null;
-  var contenedorGraficas = document.getElementById("cuerpoPagina");
-  var idGrafica=generarIdContenedorGrafica();
-  // Crear el div contenedor para el canvas
-  var divContenedor = document.createElement('div');
-  divContenedor.id=idGrafica;
-  divContenedor.classList.add('resize-drag'); // Agregar la clase para hacer draggable
-  divContenedor.style.width = '200px';
-  divContenedor.style.height = '200px';
-  divContenedor.style.border = '1px solid black';
-  divContenedor.style.position = 'relative'; // Establecer posición relativa
+function AgregarGraficaAlLienzo() {
+    configuracionModalGrafico = null;
+    var contenedorGraficas = document.getElementById("cuerpoPagina");
+    var idGrafica = generarIdContenedorGrafica();
+    var idCanvas = idGrafica + '-canvas';
+    var divContenedor = document.createElement('div');
+    divContenedor.id = idGrafica;
+    divContenedor
+        .classList
+        .add('resize-drag');
+    divContenedor.style.width = '200px';
+    divContenedor.style.height = '200px';
+    divContenedor.style.border = '1px solid black';
+    divContenedor.style.position = 'relative';
+    var botonEliminar = document.createElement('button');
+    var iconoEliminar = document.createElement("i");
+    iconoEliminar
+        .classList
+        .add("fas", "fa-trash-alt");
+    botonEliminar.appendChild(iconoEliminar);
+    botonEliminar.style.position = 'absolute';
+    botonEliminar.style.top = '5px';
+    botonEliminar.style.right = '5px';
+    botonEliminar.onclick = function () {
+        AbrirModalConfirmarEliminación(divContenedor);
+    };
 
-  // Crear el botón para eliminar
-  var botonEliminar = document.createElement('button');
-  var iconoEliminar = document.createElement("i");
-  iconoEliminar.classList.add("fas", "fa-trash-alt"); // Añade las clases de Font Awesome
-  botonEliminar.appendChild(iconoEliminar);
-  botonEliminar.style.position = 'absolute'; // Establecer posición absoluta
-  botonEliminar.style.top = '5px'; // Colocar 5px de distancia desde la parte superior
-  botonEliminar.style.right = '5px'; // Colocar 5px de distancia desde la parte derecha
-  botonEliminar.onclick = function() {
-    AbrirModalConfirmarEliminación(divContenedor);
-  };
+    var botonEditar = document.createElement('button');
+    var iconoEditar = document.createElement("i");
+    iconoEditar
+        .classList
+        .add("fas", "fa-pencil-alt");
+    botonEditar.appendChild(iconoEditar);
+    botonEditar.style.position = 'absolute';
+    botonEditar.style.top = '5px';
+    botonEditar.style.right = '40px';
+    botonEditar.onclick = function () {
+        AbrirModalEditarGrafica(idCanvas);
+    };
 
-  var botonEditar = document.createElement('button');
-  var iconoEditar = document.createElement("i");
-  iconoEditar.classList.add("fas", "fa-pencil-alt");
-  botonEditar.appendChild(iconoEditar);
-  botonEditar.style.position = 'absolute'; // Establecer posición absoluta
-  botonEditar.style.top = '5px'; // Colocar 5px de distancia desde la parte superior
-  botonEditar.style.right = '40px'; // Colocar 5px de distancia desde la parte derecha
-  botonEditar.onclick = function() {
-    AbrirModalConfirmarEliminación(divContenedor);
-  };
+    var etiqueta = document.createElement("span");
+    etiqueta.contentEditable = true;
+    etiqueta.innerText = "luis";
+    etiqueta
+        .classList
+        .add("editarNombreGrafica");
+    etiqueta.style.cursor = "text"
+    etiqueta.style.color = ""
+    var canvas = document.createElement('canvas');
 
+    canvas.id = idCanvas;
+    canvas.width = divContenedor.offsetWidth;
+    canvas.height = divContenedor.offsetHeight;
+    divContenedor.appendChild(canvas);
+    divContenedor.appendChild(botonEliminar);
+    divContenedor.appendChild(botonEditar);
+    divContenedor.appendChild(etiqueta);
+    contenedorGraficas.appendChild(divContenedor);
+    var colorElegido = $('#colorPicker').val();
+    var ejex = $('#selectX').val();
+    var ejey = $('#selectY').val();
 
-  var etiqueta = document.createElement("span");
-  etiqueta.contentEditable = true; // Hacer el elemento editable
-  etiqueta.innerText = "luis";
-  etiqueta.classList.add("editarNombreGrafica");
-  etiqueta.style.cursor = "text"
-  etiqueta.style.color=""
+    configDisenoGrafico = {
+        "tipoGrafico": almacenTipoGrafico,
+        "color": colorElegido,
+        "ejex": ejex,
+        "ejey": ejey
+    };
 
-  // Crear el canvas y configurarlo
-  var canvas = document.createElement('canvas');
-  var idCanvas=idGrafica+'-canvas';
-  canvas.id = idCanvas;
-  canvas.width = divContenedor.offsetWidth; // Establecer el ancho del canvas igual al ancho del div contenedor
-  canvas.height = divContenedor.offsetHeight; // Establecer la altura del canvas igual a la altura del div contenedor
-
-  // Agregar el canvas al div contenedor
-  divContenedor.appendChild(canvas);
-
-  // Agregar el botón eliminar al div contenedor
-  divContenedor.appendChild(botonEliminar);
-  divContenedor.appendChild(botonEditar);
-  divContenedor.appendChild(etiqueta);
-  // Agregar el div contenedor al contenedor de gráficas
-  contenedorGraficas.appendChild(divContenedor);
-
-  var colorElegido = $('#colorPicker').val();
-  var ejex = $('#selectX').val();
-  var ejey=  $('#selectY').val();
-
-
- configDisenoGrafico= {
-    "tipoGrafico": almacenTipoGrafico,
-    "color": colorElegido,
-    "ejex": ejex,
-    "ejey": ejey
-  };
-
- var datosExtraidos= ExtraerDatosEjeXYEjeY(ejex,ejey);
- var dataLlenarGrafico=GenerarConfiguracionDeDatosParaGrafica(datosExtraidos)
-
-
-  var configuracionGrafica=GenerarConfiguracionGrafica(almacenTipoGrafico,dataLlenarGrafico,idCanvas,configDisenoGrafico);
-  configuracionesGraficos[idCanvas]=configuracionGrafica;
-  almacenTipoGrafico=null;
-  // Generar la gráfica en el canvas
-  generarGrafica(idGrafica,false,configuracionGrafica);
-
-  GuardarValoresEjeXYEjeY(idCanvas,datosExtraidos[0],datosExtraidos[1],ejex,ejey);
-  CerrarModalCrearGrafico();
+    var datosExtraidos = ExtraerDatosEjeXYEjeY(ejex, ejey);
+    var dataLlenarGrafico = GenerarConfiguracionDeDatosParaGrafica(datosExtraidos)
+    var configuracionGrafica = GenerarConfiguracionGrafica(
+        almacenTipoGrafico,
+        dataLlenarGrafico,
+        idCanvas,
+        configDisenoGrafico
+    );
+    configuracionesGraficos[idCanvas] = configuracionGrafica;
+    almacenTipoGrafico = null;
+    generarGrafica(idGrafica, false, configuracionGrafica);
+    GuardarValoresEjeXYEjeY(
+        idCanvas,
+        datosExtraidos[0],
+        datosExtraidos[1],
+        ejex,
+        ejey,
+        colorElegido
+    );
+    CerrarModalCrearGrafico();
 }
 
-function ExtraerDatosEjeXYEjeY(nombreCampoEjeX,nombreCampoEjeY){
-  // var datosEjeX=ObtenerValoresUnicosDeDatosFiltrados(nombreCampoEjeX);
-  var valoresEjes=CrearValoresEjes(nombreCampoEjeX,nombreCampoEjeY);
-  
-  const valoresEjeX = [];
-  const valoresEjeY = [];
-  
-  for (let llave in valoresEjes) {
-      valoresEjeX.push(llave);
-      valoresEjeY.push(valoresEjes[llave]);
-  }
+function ExtraerDatosEjeXYEjeY(nombreCampoEjeX, nombreCampoEjeY) {
+    var valoresEjes = CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY);
 
-  return [valoresEjeX,valoresEjeY];
-  
-  }
+    const valoresEjeX = [];
+    const valoresEjeY = [];
 
+    for (let llave in valoresEjes) {
+        valoresEjeX.push(llave);
+        valoresEjeY.push(valoresEjes[llave]);
+    }
 
-function GenerarConfiguracionDeDatosParaGrafica(datosEjes){
-  var datosGrafico = {
-    labels:datosEjes[0],
-    datasets: [{
-        label: '',
-        data: datosEjes[1],
-        borderWidth: 1
-    }]
-  };
+    return [valoresEjeX, valoresEjeY];
 
-  return datosGrafico;
+}
+
+function GenerarConfiguracionDeDatosParaGrafica(datosEjes) {
+    var datosGrafico = {
+        labels: datosEjes[0],
+        datasets: [
+            {
+                label: '',
+                data: datosEjes[1],
+                borderWidth: 1
+            }
+        ]
+    };
+
+    return datosGrafico;
 }
 
 function AgregarLienzoADashboard() {
-  var contenedorGraficas = document.getElementById("cuerpoPagina");
-  contenedorGraficas.innerHTML='';
-  contenedorGraficas.style.display = "flex";
-  contenedorGraficas.classList.remove("cuerpoPagina");
-  contenedorGraficas.classList.add("cuerpoPaginaEnDashboard");
-  contenedorGraficas.style.flexWrap = "wrap";
-  agregarSidebarAlBody();
-  
+    var contenedorGraficas = document.getElementById("cuerpoPagina");
+    contenedorGraficas.innerHTML = '';
+    contenedorGraficas.style.display = "flex";
+    contenedorGraficas
+        .classList
+        .remove("cuerpoPagina");
+    contenedorGraficas
+        .classList
+        .add("cuerpoPaginaEnDashboard");
+    contenedorGraficas.style.flexWrap = "wrap";
+    agregarSidebarAlBody();
+
 }
 
-function RecrearCanvas(idCanvas,idContenedor){
-       var canvas=document.getElementById(idCanvas)
-       document.getElementById(idContenedor).removeChild(canvas);
-  
-    var contendorGrafica=document.getElementById(idContenedor)
+function RecrearCanvas(idCanvas, idContenedor) {
+    var canvas = document.getElementById(idCanvas)
+    document
+        .getElementById(idContenedor)
+        .removeChild(canvas);
+
+    var contendorGrafica = document.getElementById(idContenedor)
     var canvas = document.createElement('canvas');
     canvas.id = idCanvas;
-    canvas.width = contendorGrafica.offsetWidth; // Establecer el ancho del canvas igual al ancho del div contenedor
+    canvas.width = contendorGrafica.offsetWidth;
     canvas.height = contendorGrafica.offsetHeight;
     contendorGrafica.appendChild(canvas);
-    var configuracion=configuracionesGraficos[idCanvas];
-    generarGrafica(idContenedor,true,configuracion);
+    var configuracion = configuracionesGraficos[idCanvas];
+    generarGrafica(idContenedor, true, configuracion);
 }
 
-
-
-
-  function dragMoveListener (event) {
-    var target = event.target
-    // keep the dragged position in the data-x/data-y attributes
+function dragMoveListener(event) {
+    var target = event.target;
     var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
     var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
-  
-    // translate the element
+
     target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
-  
-    // update the posiion attributes
     target.setAttribute('data-x', x)
     target.setAttribute('data-y', y)
 
-    }
+}
 
-
-    
-    function agregarSidebarAlBody() {
-      // HTML del sidebar
-      var sidebarHTML = `      
+function agregarSidebarAlBody() {
+    var sidebarHTML = `      
           <div id="sidebar" class="sidebar">
           <div class="sidebar-arrow" onclick="toggleSidebar()" id="divFlecha">
           <svg fill="#000000" width="72px" height="72px" viewBox="0 0 1920.00 1920.00" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="30.72"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="m1352.005.012 176.13 176.13-783.864 783.989 783.864 783.74L1352.005 1920 391.887 960.13z" fill-rule="evenodd"></path> </g></svg>
@@ -701,41 +813,39 @@ function RecrearCanvas(idCanvas,idContenedor){
           </div>
 
       `;
-      
-      // Crear un elemento div para contener el sidebar
-      var cuerpoPagina=document.getElementById("cuerpoPagina");
-      var sidebarContainer = document.createElement("div");
-      sidebarContainer.innerHTML = sidebarHTML;
-      
-      // Agregar el sidebar al body del documento
-      cuerpoPagina.appendChild(sidebarContainer);
-    }
-    
-    // Función para mostrar u ocultar el sidebar
-    function toggleSidebar() {
-      var sidebar = document.getElementById("sidebar");
-      var divFlecha=document.getElementById("divFlecha");
-      var sidebarRightStyle = getComputedStyle(sidebar).right;
-      var svgAbrir='<svg fill="#000000" width="72px" height="72px" viewBox="0 0 1920.00 1920.00" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="30.72"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="m1352.005.012 176.13 176.13-783.864 783.989 783.864 783.74L1352.005 1920 391.887 960.13z" fill-rule="evenodd"></path> </g></svg>';
-      var svgCerrar='<svg fill="#000000" width="72px" height="72px" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="40.32"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M568.13.012 392 176.142l783.864 783.989L392 1743.87 568.13 1920l960.118-959.87z" fill-rule="evenodd"></path> </g></svg>';
-    
-      if (!sidebarRightStyle) {
+
+    var cuerpoPagina = document.getElementById("cuerpoPagina");
+    var sidebarContainer = document.createElement("div");
+    sidebarContainer.innerHTML = sidebarHTML;
+    cuerpoPagina.appendChild(sidebarContainer);
+}
+
+function toggleSidebar() {
+    var sidebar = document.getElementById("sidebar");
+    var divFlecha = document.getElementById("divFlecha");
+    var sidebarRightStyle = getComputedStyle(sidebar).right;
+    var svgAbrir = '<svg fill="#000000" width="72px" height="72px" viewBox="0 0 1920.00 1920.00" x' +
+            'mlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="30.72"><g id=' +
+            '"SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-' +
+            'linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path' +
+            ' d="m1352.005.012 176.13 176.13-783.864 783.989 783.864 783.74L1352.005 1920 3' +
+            '91.887 960.13z" fill-rule="evenodd"></path> </g></svg>';
+    var svgCerrar = '<svg fill="#000000" width="72px" height="72px" viewBox="0 0 1920 1920" xmlns="' +
+            'http://www.w3.org/2000/svg" stroke="#000000" stroke-width="40.32"><g id="SVGRe' +
+            'po_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-lineca' +
+            'p="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M5' +
+            '68.13.012 392 176.142l783.864 783.989L392 1743.87 568.13 1920l960.118-959.87z"' +
+            ' fill-rule="evenodd"></path> </g></svg>';
+
+    if (!sidebarRightStyle) {
         sidebar.style.right = "0";
-      } else if (sidebarRightStyle === "-300px") {
+    } else if (sidebarRightStyle === "-300px") {
         sidebar.style.right = "0";
-        divFlecha.innerHTML=svgCerrar;
-      } else {
+        divFlecha.innerHTML = svgCerrar;
+    } else {
         sidebar.style.right = "-300px";
-        divFlecha.innerHTML= svgAbrir;
-      }
+        divFlecha.innerHTML = svgAbrir;
     }
-    
-    
+}
 
-  
-  // this function is used later in the resizing and gesture demos
-  window.dragMoveListener = dragMoveListener;
-
-// Escuchar el evento de cambio de tamaño del contenedor
-
-
+window.dragMoveListener = dragMoveListener;
