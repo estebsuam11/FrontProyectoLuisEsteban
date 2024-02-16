@@ -50,6 +50,7 @@ almacenamientoDatosEjesGraficos[idCanvas]={
 }
 
 var divAeliminar;
+var filtroAEliminar;
 
 function llenarSelectoFiltro(nombreColumna,selector) {
   var opcionesUnicas = new Set();
@@ -79,6 +80,18 @@ function AgregarFiltroAlLienzo(){
   divContenedor.style.border = '1px solid black';
   divContenedor.style.position = 'relative'; 
 
+   // Crear el botón para eliminar
+   var botonEliminar = document.createElement('button');
+   var iconoEliminar = document.createElement("i");
+   iconoEliminar.classList.add("fas", "fa-trash-alt"); // Añade las clases de Font Awesome
+   botonEliminar.appendChild(iconoEliminar);
+   botonEliminar.style.position = 'absolute'; // Establecer posición absoluta
+   botonEliminar.style.top = '5px'; // Colocar 5px de distancia desde la parte superior
+   botonEliminar.style.right = '5px'; // Colocar 5px de distancia desde la parte derecha
+   botonEliminar.onclick = function() {
+     AbrirModalConfirmarEliminaciónFiltro(divContenedor);
+   };
+
 
   var selectContenidoFiltro = document.createElement('select');
 selectContenidoFiltro.id = "selectFiltro-" + nombreCampo;
@@ -88,8 +101,10 @@ selectContenidoFiltro.multiple = true;
 
 // Establecer estilos para simular una flecha desplegable
   divContenedor.appendChild(selectContenidoFiltro);
+  divContenedor.appendChild(botonEliminar);
   contenedorGraficas.appendChild(divContenedor);
   llenarSelectoFiltro(nombreCampo,selectContenidoFiltro)
+  $('#selectFiltro-' + nombreCampo).select2({ width: '100%' }); 
   CerrarModalCrearFiltro();
   selectContenidoFiltro.style = "width:100%"  
   CapturarYAplicarSeleccion();
@@ -121,33 +136,32 @@ RecrearCanvas(idGrafico,idContenedor);
 
 
 function CapturarYAplicarSeleccion() {
-  document.addEventListener('change', function(event) {
+  $('#cuerpoPagina').on('change', 'select', function(event) {
       var select = event.target;
-      var nombreFiltro=select.id.split("-")[1];
+      var nombreFiltro = select.id.split("-")[1];
 
       if (select && select.tagName === 'SELECT' && select.id.includes('selectFiltro')) {
           var selectedOptions = Array.from(select.selectedOptions).map(option => option.value);
           if (selectedOptions.length === 0) {
-            var filtroExistenteIndex = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === nombreFiltro);
-            if (filtroExistenteIndex !== -1) {
-                almacenarFiltros.splice(filtroExistenteIndex, 1);
-            }
-        } else {
-            var filtroExistenteIndex = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === nombreFiltro);
-            if (filtroExistenteIndex !== -1) {
-                almacenarFiltros[filtroExistenteIndex].valoresFiltro = selectedOptions;
-            } else {
-
-                almacenarFiltros.push({ "campoFiltro": nombreFiltro, "valoresFiltro": selectedOptions });
-            }
-        }
-        almacenarFiltros.length>0?hayFiltros=true:hayFiltros=false;
-        FiltrarDatosDashboard()
-        AplicarFiltrosATodasLasGraficas();
+              var filtroExistenteIndex = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === nombreFiltro);
+              if (filtroExistenteIndex !== -1) {
+                  almacenarFiltros.splice(filtroExistenteIndex, 1);
+              }
+          } else {
+              var filtroExistenteIndex = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === nombreFiltro);
+              if (filtroExistenteIndex !== -1) {
+                  almacenarFiltros[filtroExistenteIndex].valoresFiltro = selectedOptions;
+              } else {
+                  almacenarFiltros.push({ "campoFiltro": nombreFiltro, "valoresFiltro": selectedOptions });
+              }
+          }
+          almacenarFiltros.length > 0 ? hayFiltros = true : hayFiltros = false;
+          FiltrarDatosDashboard()
+          AplicarFiltrosATodasLasGraficas();
       }
-
   });
 }
+
 
 
 
@@ -444,8 +458,13 @@ function AbrirModalConfirmarEliminación(divContenedor){
   $('#modalConfirmarEliminacio').modal('show');
 }
 
-function CerrarModalConfirmarEliminacion(){
-  $('#modalConfirmarEliminacio').modal('hide');
+function AbrirModalConfirmarEliminaciónFiltro(divContenedor){
+  filtroAEliminar = divContenedor;
+  $('#modalConfirmarEliminacionFiltro').modal('show');
+}
+
+function CerrarModalConfirmarEliminacionFiltro(){
+  $('#modalConfirmarEliminacionFiltro').modal('hide');
 }
 
 function EliminarGrafica(){
@@ -456,6 +475,22 @@ function EliminarGrafica(){
     delete instanciasGraficos[idElemento];
     delete almacenamientoDatosEjesGraficos[idElemento]
     toastr.success("Gráfica eliminada correctamente"); 
+}
+
+function EliminarFiltro(){
+  $(filtroAEliminar).remove();
+    $('#modalConfirmarEliminacionFiltro').modal('hide');
+    let idElemento=filtroAEliminar.id;
+    var indiceSubrayado = idElemento.indexOf('_'); // Obtener la posición del primer subrayado
+    var resultado = idElemento.substring(indiceSubrayado + 1);
+var index = almacenarFiltros.findIndex(filtro => filtro.campoFiltro === resultado);
+if (index !== -1) {
+    almacenarFiltros.splice(index, 1);
+}
+
+    toastr.success("Filtro eliminado correctamente"); 
+    FiltrarDatosDashboard()
+    AplicarFiltrosATodasLasGraficas();
 }
 
 function AgregarGraficaAlLienzo(){
