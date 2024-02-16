@@ -68,6 +68,19 @@ async function enviarArchivo() {
 }
 
 
+function PurificarDatos() {
+    var datosAntes = globalData[0].Datos.length;
+    datosLimpios = globalData[0].Datos.filter(registro => {
+        return !Object
+            .values(registro)
+            .some(value => value === null || value === "" || value === undefined);
+    });
+    globalData[0].Datos.length = 0;
+    globalData[0].Datos=datosLimpios;
+    var registrosEliminados = datosAntes - globalData[0].Datos.length;
+    toastr.success("Se han limpiado " + registrosEliminados + " registros erroneos de los "+ datosAntes + " registros originales");
+  }
+  
 
 async function guardarDataEnDataLake() {
     // Mostrar el spinner mientras se envía la solicitud
@@ -355,7 +368,6 @@ function ajustarModal() {
 }
 
 function agregarBotonGuardarDatos() {
-    // Crear el botón
     var botonGuardar = document.createElement("button");
     botonGuardar.setAttribute("type", "button");
     botonGuardar.classList.add("cargar");
@@ -363,11 +375,21 @@ function agregarBotonGuardarDatos() {
     botonGuardar.onclick = function() {
         guardarDataEnDataLake();
     };
-
-
-    // Agregar el botón al modal
     var modalContainer = document.querySelector(".modal__container");
     modalContainer.appendChild(botonGuardar);
+}
+
+function AgregarBotonPurificarDatos(){
+    var botonPurificar = document.createElement("button");
+    botonPurificar.setAttribute("type", "button");
+    botonPurificar.classList.add("cargar");
+    botonPurificar.textContent = "Purificar Datos";
+    botonPurificar.onclick = function() {
+        PurificarDatos();
+    };
+
+    var modalContainer = document.querySelector(".modal__container");
+    modalContainer.appendChild(botonPurificar);
 }
 
 function MostrarDatos(){
@@ -404,6 +426,7 @@ function MostrarDatos(){
         });
 
         agregarBotonGuardarDatos();
+        AgregarBotonPurificarDatos();
    // Habilitar la edición para la columna con la clase "editable"
    $('#tablaDatos').on('click', 'tr[contenteditable="true"]', function () {
         $(this).attr('contenteditable', 'true').focus();

@@ -22,15 +22,7 @@ function CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY) {
     return totals;
 }
 
-function PurificarDatos() {
-    datosLimpios = dataSetDashboard[0].filter(registro => {
-        return !Object
-            .values(registro)
-            .some(value => value === null || value === "" || value === undefined);
-    });
-    dataSetDashboard.length = 0;
-    dataSetDashboard.push(datosLimpios);
-}
+
 
 function AplicarEdicionAGrafico() {
     let idContenedor = idGraficaAeditar.replace(/-canvas$/, '');
@@ -273,57 +265,6 @@ function AgregarNombresCamposASelect(idSelects) {
     });
 }
 
-function AbrirModalCrearGrafico(tipoGrafico) {
-    almacenTipoGrafico = tipoGrafico;
-    $('#modalCrearGrafica').modal('show');
-}
-
-function AbrirModalCrearFiltro() {
-    // almacenTipoGrafico=tipoGrafico;
-    $('#modalCrearFiltro').modal('show');
-}
-
-function CerrarModalCrearFiltro() {
-    // almacenTipoGrafico=tipoGrafico;
-    $('#modalCrearFiltro').modal('hide');
-}
-
-$('#modalCrearFiltro').on('shown.bs.modal', function () {
-    let idSelects = ["selectCrearFiltro"]
-    AgregarNombresCamposASelect(idSelects);
-});
-
-$('#selectX, #selectY').change(function () {
-    var selectedValue = $(this).val(); 
-
-    $('#selectX, #selectY')
-        .not($(this))
-        .find('option')
-        .prop('disabled', false);
-    $('#selectX, #selectY')
-        .not($(this))
-        .find('option[value="' + selectedValue + '"]')
-        .prop('disabled', true); 
-
-    $('#selectX, #selectY')
-        .not($(this))
-        .change(function () {
-            var deselectedValue = $(this).val(); 
-            $(this)
-                .find('option[value="' + deselectedValue + '"]')
-                .prop('disabled', false); 
-        });
-});
-
-$('#modalCrearGrafica').on('shown.bs.modal', function () {
-    let idSelects = ["selectX", "selectY"]
-    AgregarNombresCamposASelect(idSelects);
-});
-
-function CerrarModalCrearGrafico() {
-    $('#modalCrearGrafica').modal('hide');
-}
-
 function generarIdContenedorGrafica() {
     var id = "Grafico-numero-" + generarGUID();
     return id;
@@ -545,36 +486,6 @@ function ajustarTamanoCanvas(chart) {
         duration: 0, 
         lazy: false 
     });
-}
-
-function AbrirModalConfirmarEliminación(divContenedor) {
-    divAeliminar = divContenedor;
-    $('#modalConfirmarEliminacio').modal('show');
-}
-
-function AbrirModalEditarGrafica(idGrafica) {
-    idGraficaAeditar = idGrafica;
-    var datosGrafico = almacenamientoDatosEjesGraficos[idGrafica];
-    let idSelects = ["selectXEditarGrafica", "selectYEditarGrafica"]
-    AgregarNombresCamposASelect(idSelects);
-    $('#colorPickerEditarGrafica').val(datosGrafico.colorElegido);
-    $('#selectXEditarGrafica').val(datosGrafico.nombreCampoEjeX);
-    $('#selectYEditarGrafica').val(datosGrafico.nombreCampoEjeY);
-    $('#modalEditarGrafica').modal('show');
-}
-
-function CerrarModalEditarGrafica() {
-    idGraficaAeditar = null;
-    $('#modalEditarGrafica').modal('hide');
-}
-
-function AbrirModalConfirmarEliminaciónFiltro(divContenedor) {
-    filtroAEliminar = divContenedor;
-    $('#modalConfirmarEliminacionFiltro').modal('show');
-}
-
-function CerrarModalConfirmarEliminacionFiltro() {
-    $('#modalConfirmarEliminacionFiltro').modal('hide');
 }
 
 function EliminarGrafica() {
