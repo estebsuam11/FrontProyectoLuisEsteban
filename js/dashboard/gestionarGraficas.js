@@ -1,11 +1,12 @@
 var instanciasGraficos = {};
 var configuracionesGraficos={};
+var almacenamientoDatosEjesGraficos={};
+var hayFiltros=false;
 var dataDataSetFiltrada=[]
 var configuracionModalGrafico = null;
 var almacenTipoGrafico=null;
 var nombresColumnasDataSet=[];
 var almacenarFiltros=[];
-var almacenamientoDatosEjesGraficos={};
 var datosPrueba = {
   labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
   datasets: [{
@@ -18,7 +19,8 @@ var datosPrueba = {
 };
 
 function CrearValoresEjes(nombreCampoEjeX,nombreCampoEjeY){
-    let totals = dataSetDashboard[0].reduce((acc, cur) => {
+  var dataAUsar=hayFiltros?dataDataSetFiltrada: dataSetDashboard[0];
+    let totals = dataAUsar.reduce((acc, cur) => {
         let value = cur[nombreCampoEjeX];
         acc[value] = (acc[value] || 0) + parseFloat(cur[nombreCampoEjeY]);
         return acc;
@@ -38,9 +40,11 @@ dataSetDashboard.push(datosLimpios);
 
 
 
-function GuardarValoresEjeXYEjeY(idCanvas,datosEjeX,datosEjeY){
+function GuardarValoresEjeXYEjeY(idCanvas,datosEjeX,datosEjeY,ejex,ejey){
 
 almacenamientoDatosEjesGraficos[idCanvas]={
+  "nombreCampoEjeX":ejex,
+  "nombreCampoEjeY":ejey,
   "datosEjeX":datosEjeX,
   "datosEjeY":datosEjeY};
 }
@@ -63,20 +67,6 @@ function llenarSelectoFiltro(nombreColumna,selector) {
 }
 
 
-function FiltrarDatosDataSet(filtros){
-  var resultadosFiltrados = dataSetDashboard.slice(); // Copia los datos originales
-
-    filtros.forEach(function(filtro) {
-        var columna = filtro.columna;
-        var valor = filtro.valor;
-        dataDataSetFiltrada = resultadosFiltrados[0].filter(function(item) {
-            return item[columna] === valor;
-        });
-    });
-
-}
-
-
 function AgregarFiltroAlLienzo(){
   var nombreCampo=document.getElementById("selectCrearFiltro").value;
   var contenedorGraficas=document.getElementById("cuerpoPagina");
@@ -90,8 +80,12 @@ function AgregarFiltroAlLienzo(){
 
 
   var selectContenidoFiltro = document.createElement('select');
-  selectContenidoFiltro.id="selectFiltro-"+nombreCampo;// Establecer el ancho del canvas igual al ancho del div contenedor
-  selectContenidoFiltro.multiple = true; // Convertir en multi-select
+selectContenidoFiltro.id = "selectFiltro-" + nombreCampo;
+selectContenidoFiltro.multiple = true;
+
+
+
+// Establecer estilos para simular una flecha desplegable
   divContenedor.appendChild(selectContenidoFiltro);
   contenedorGraficas.appendChild(divContenedor);
   llenarSelectoFiltro(nombreCampo,selectContenidoFiltro)
@@ -100,13 +94,28 @@ function AgregarFiltroAlLienzo(){
   CapturarYAplicarSeleccion();
 }
 
-function AplicarFiltrosAlDashboard() {
+function FiltrarDatosDashboard() {
   dataDataSetFiltrada = almacenarFiltros.reduce((filteredData, filtro) => {
       return filteredData.filter(item => {
           return item[filtro.campoFiltro] && filtro.valoresFiltro.includes(item[filtro.campoFiltro]);
       });
   }, dataSetDashboard[0]);
 }
+
+function AplicarFiltrosATodasLasGraficas(){
+  var idsGraficas =Object.keys(almacenamientoDatosEjesGraficos);
+  idsGraficas.forEach(idGrafico=>{
+let filtroConfigGrafica= almacenamientoDatosEjesGraficos[idGrafico];
+var datosEjes= ExtraerDatosEjeXYEjeY(filtroConfigGrafica.nombreCampoEjeX,filtroConfigGrafica.nombreCampoEjeY);
+configuracionesGraficos[idGrafico].data.labels=datosEjes[0];
+configuracionesGraficos[idGrafico].data.datasets[0].data=datosEjes[1];
+
+let idContenedor = idGrafico.replace(/-canvas$/, '');
+RecrearCanvas(idGrafico,idContenedor);
+  });
+}
+
+
 
 
 function CapturarYAplicarSeleccion() {
@@ -130,9 +139,11 @@ function CapturarYAplicarSeleccion() {
                 almacenarFiltros.push({ "campoFiltro": nombreFiltro, "valoresFiltro": selectedOptions });
             }
         }
-
+        almacenarFiltros.length>0?hayFiltros=true:hayFiltros=false;
+        FiltrarDatosDashboard()
+        AplicarFiltrosATodasLasGraficas();
       }
-      AplicarFiltrosAlDashboard()
+
   });
 }
 
@@ -437,6 +448,10 @@ function CerrarModalConfirmarEliminacion(){
 function EliminarGrafica(){
   $(divAeliminar).remove();
     $('#modalConfirmarEliminacio').modal('hide');
+    let idElemento=divAeliminar.id+"-canvas";
+    delete configuracionesGraficos[idElemento];
+    delete instanciasGraficos[idElemento];
+    delete almacenamientoDatosEjesGraficos[idElemento]
     toastr.success("Gráfica eliminada correctamente"); 
 }
 
@@ -522,6 +537,8 @@ function AgregarGraficaAlLienzo(){
   almacenTipoGrafico=null;
   // Generar la gráfica en el canvas
   generarGrafica(idGrafica,false,configuracionGrafica);
+
+  GuardarValoresEjeXYEjeY(idCanvas,datosExtraidos[0],datosExtraidos[1],ejex,ejey);
   CerrarModalCrearGrafico();
 }
 
