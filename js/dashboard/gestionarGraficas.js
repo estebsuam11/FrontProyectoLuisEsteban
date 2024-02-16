@@ -71,7 +71,8 @@ function AgregarFiltroAlLienzo(){
   var nombreCampo=document.getElementById("selectCrearFiltro").value;
   var contenedorGraficas=document.getElementById("cuerpoPagina");
   var divContenedor = document.createElement('div');
-  divContenedor.id="elementoFiltro"+"_"+nombreCampo;
+  var idElementoContenedor="elementoFiltro"+"_"+nombreCampo;
+  divContenedor.id=idElementoContenedor;
   divContenedor.classList.add('resize-drag'); // Agregar la clase para hacer draggable
   divContenedor.style.width = '100px';
   divContenedor.style.height = '100px';
@@ -92,6 +93,7 @@ selectContenidoFiltro.multiple = true;
   CerrarModalCrearFiltro();
   selectContenidoFiltro.style = "width:100%"  
   CapturarYAplicarSeleccion();
+  hacerDraggable(null,idElementoContenedor,false);
 }
 
 function FiltrarDatosDashboard() {
@@ -348,7 +350,7 @@ destruirInstancia(idCanvas);
 
 
 instanciasGraficos[idCanvas]  = new Chart(ctx, configuracionGrafica);
-hacerDraggable(idCanvas,idDivContenedor);
+hacerDraggable(idCanvas,idDivContenedor,true);
 }
 
 
@@ -360,7 +362,7 @@ function destruirInstancia(idCanvas) {
   }
 }
 
-function hacerDraggable(idCanvas,idContenedor) {
+function hacerDraggable(idCanvas,idContenedor,esGrafica) {
   interact('#' + idContenedor)
     .resizable({
       // resize from all edges and corners
@@ -384,8 +386,9 @@ function hacerDraggable(idCanvas,idContenedor) {
   
           target.setAttribute('data-x', x)
           target.setAttribute('data-y', y)
-    
-            RecrearCanvas(idCanvas,idContenedor)
+     if(esGrafica){
+      RecrearCanvas(idCanvas,idContenedor)
+     }
           
         }
       },
