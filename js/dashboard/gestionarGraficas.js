@@ -9,13 +9,18 @@ var nombresColumnasDataSet = [];
 var almacenarFiltros = [];
 var almacenCamposUsadosEnFiltros = [];
 
-function CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY) {
+function CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY, acumular) {
     var dataAUsar = hayFiltros
         ? dataDataSetFiltrada
         : dataSetDashboard[0];
     let totals = dataAUsar.reduce((acc, cur) => {
         let value = cur[nombreCampoEjeX];
-        acc[value] = (acc[value] || 0) + parseFloat(cur[nombreCampoEjeY]);
+        if (acumular) {
+        let yValue = parseFloat(cur[nombreCampoEjeY]);
+            acc[value] = (acc[value] || 0) + yValue;
+        } else {
+            acc[value] = (acc[value] || 0) + 1;
+        }
         return acc;
     }, {});
 
@@ -24,12 +29,15 @@ function CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY) {
 
 
 
+
 function AplicarEdicionAGrafico() {
     let idContenedor = idGraficaAeditar.replace(/-canvas$/, '');
     let campoX = $('#selectXEditarGrafica').val();
     let campoY = $('#selectYEditarGrafica').val();
     let colorElegido = $('#colorPickerEditarGrafica').val();
-    CambiarValoresEjesGrafico(idGraficaAeditar, campoX, campoY, colorElegido);
+    // Obtener el estado actual del checkbox
+var esAcumulador = $("#AcumuladorCheckboxEditar").is(":checked");
+    CambiarValoresEjesGrafico(idGraficaAeditar, campoX, campoY, colorElegido,esAcumulador);
     RecrearCanvas(idGraficaAeditar, idContenedor)
     CerrarModalEditarGrafica();
 }
@@ -38,9 +46,10 @@ function CambiarValoresEjesGrafico(
     idGrafico,
     nombreCampoX,
     nombreCampoY,
-    colorElegido
+    colorElegido,
+    esAcumulador
 ) {
-    var datosEjes = ExtraerDatosEjeXYEjeY(nombreCampoX, nombreCampoY);
+    var datosEjes = ExtraerDatosEjeXYEjeY(nombreCampoX, nombreCampoY,esAcumulador);
     if (colorElegido != null) {
         configuracionesGraficos[idGrafico]
             .data
@@ -59,7 +68,8 @@ function CambiarValoresEjesGrafico(
         datosEjes[1],
         nombreCampoX,
         nombreCampoY,
-        colorElegido
+        colorElegido,
+        esAcumulador
     );
 }
 
@@ -69,14 +79,16 @@ function GuardarValoresEjeXYEjeY(
     datosEjeY,
     ejex,
     ejey,
-    colorElegido
+    colorElegido,
+    esAcumulador
 ) {
     almacenamientoDatosEjesGraficos[idCanvas] = {
         "nombreCampoEjeX": ejex,
         "nombreCampoEjeY": ejey,
         "datosEjeX": datosEjeX,
         "datosEjeY": datosEjeY,
-        "colorElegido": colorElegido
+        "colorElegido": colorElegido,
+        "esAcumulador":esAcumulador
     };
 }
 
@@ -196,7 +208,8 @@ function AplicarFiltrosATodasLasGraficas() {
         let filtroConfigGrafica = almacenamientoDatosEjesGraficos[idGrafico];
         var datosEjes = ExtraerDatosEjeXYEjeY(
             filtroConfigGrafica.nombreCampoEjeX,
-            filtroConfigGrafica.nombreCampoEjeY
+            filtroConfigGrafica.nombreCampoEjeY,
+            filtroConfigGrafica.esAcumulador
         );
         configuracionesGraficos[idGrafico].data.labels = datosEjes[0];
         configuracionesGraficos[idGrafico]
@@ -577,15 +590,18 @@ function AgregarGraficaAlLienzo() {
     var colorElegido = $('#colorPicker').val();
     var ejex = $('#selectX').val();
     var ejey = $('#selectY').val();
+    var esAcumulador = false;
+    esAcumulador=$("#AcumuladorCheckboxCrear").is(":checked");
 
     configDisenoGrafico = {
         "tipoGrafico": almacenTipoGrafico,
         "color": colorElegido,
         "ejex": ejex,
-        "ejey": ejey
+        "ejey": ejey,
+        "esAcumulador":esAcumulador
     };
 
-    var datosExtraidos = ExtraerDatosEjeXYEjeY(ejex, ejey);
+    var datosExtraidos = ExtraerDatosEjeXYEjeY(ejex, ejey,esAcumulador);
     var dataLlenarGrafico = GenerarConfiguracionDeDatosParaGrafica(datosExtraidos)
     var configuracionGrafica = GenerarConfiguracionGrafica(
         almacenTipoGrafico,
@@ -602,13 +618,14 @@ function AgregarGraficaAlLienzo() {
         datosExtraidos[1],
         ejex,
         ejey,
-        colorElegido
+        colorElegido,
+        esAcumulador
     );
     CerrarModalCrearGrafico();
 }
 
-function ExtraerDatosEjeXYEjeY(nombreCampoEjeX, nombreCampoEjeY) {
-    var valoresEjes = CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY);
+function ExtraerDatosEjeXYEjeY(nombreCampoEjeX, nombreCampoEjeY,esAcumulador) {
+    var valoresEjes = CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY,esAcumulador);
 
     const valoresEjeX = [];
     const valoresEjeY = [];
