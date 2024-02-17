@@ -4288,3 +4288,6 @@ svg:hover + .enlace {
   margin-right: 5px; /* Espacio entre el icono y el texto */
   font-size: 20px; /* Tamaño del icono */
 }
+
+.dataTables_scrollHeadInner{  width:100% !important; }
+.dataTables_scrollHeadInner table{  width:100% !important; }

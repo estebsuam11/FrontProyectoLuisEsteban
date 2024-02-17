@@ -2,8 +2,7 @@ function crearTablasGestion(id, DatosDataLake) {
     var tabla = document.createElement("table");
     var tablaId = "tablaGestionarDatos-" + id; 
     tabla.id = tablaId;
-    tabla.className = "display"; // Agregar la clase "display"
-
+    tabla.className = "display"; 
     // Agregar el atributo cellspacing="0" y width="100%"
     tabla.setAttribute("cellspacing", "0");
     tabla.setAttribute("width", "100%");
@@ -11,10 +10,11 @@ function crearTablasGestion(id, DatosDataLake) {
     // Crear thead y tbody
     var thead = document.createElement("thead");
     var tbody = document.createElement("tbody");
-
+    tabla.appendChild(thead);
     // Crear cabeceras de la tabla y agregarlas a thead
-    var filasCabecera = CrearCabecerasTabla(Object.keys(DatosDataLake[0]));
-    thead.appendChild(filasCabecera);
+    var filaCabecera=thead.insertRow();
+    var encabezados = CrearCabecerasTabla(Object.keys(DatosDataLake[0]),filaCabecera);
+    thead.appendChild(encabezados);
 
     // Crear filas de datos y agregarlas a tbody
     DatosDataLake.forEach(objetoDataLake => {
@@ -23,13 +23,13 @@ function crearTablasGestion(id, DatosDataLake) {
             var cell = document.createElement('td');
             cell.contentEditable = true;
             cell.textContent = value;
-            row.appendChild(cell);
+            row.append(cell);
         });
-        tbody.appendChild(row);
+        tbody.append(row);
     });
 
     // Agregar thead y tbody a la tabla
-    tabla.appendChild(thead);
+
     tabla.appendChild(tbody);
 
     // Agregar la tabla al contenedor deseado
@@ -41,11 +41,43 @@ function crearTablasGestion(id, DatosDataLake) {
     consultarDatosContainer.style.display = "none";
 }
 
+function CombinarDatosDataLake(){
+    var discrepancias=verificarColumnasElementosDataLake();
+    if(discrepancias.length>0){
+        toastr.error("hay discrepancias entre los objetos del dataLake" );
+        let idsConDiscrepancias = discrepancias.map(obj => obj.id);
+        MarcarDivErroneo(idsConDiscrepancias);
+    }else{
+        console.log("bien");
+    }
+}
+
+function MarcarDivErroneo(idsDiscrepancias){
+    idsDiscrepancias.forEach(id=>{
+        var elemento=document.getElementById("tablaGestionarDatos-"+id+"_wrapper")
+        elemento.style.backgroundColor="#F1D90F"
+    });
+}
 
 
+function verificarColumnasElementosDataLake() {
+    let maxColumnas = DatosDataLake.reduce((max, obj) => {
+        return Math.max(max, Object.keys(obj.datos[0]).length);
+    }, 0);
 
-function CrearCabecerasTabla(llaves){
-    var filaCabecera = document.createElement("tr");
+    let discrepancias = [];
+    DatosDataLake.forEach(obj => {
+        let numColumnas = Object.keys(obj.datos[0]).length;
+        if (numColumnas !== maxColumnas) {
+            discrepancias.push({ id: obj.id, cantidadCampos: numColumnas });
+        }
+    });
+
+    return discrepancias;
+}
+
+
+function CrearCabecerasTabla(llaves,filaCabecera){
     
     llaves.forEach(function(llave) {
         var celdaCabecera = document.createElement('td'); 
@@ -87,10 +119,14 @@ function rellenarModalRegistros(){
 function ConvertirTablasADataTables(listaIds){
     listaIds.forEach(idTabla=>{
         $('#tablaGestionarDatos-' + idTabla).DataTable({
-            scrollX: true,
-            scrollY: "300px",
-            scrollCollapse: true
+            scrollCollapse: true,
+            scrollY: '200px',
+            scrollX:'100px'
         });
+
+        let elementoCreado=document.getElementById("tablaGestionarDatos-" + idTabla+"_wrapper");
+        elementoCreado.style.border="solid";
+        elementoCreado.style.marginBottom="30px";
     });
 }
 
@@ -100,9 +136,9 @@ function agregarBotonCombinarDatos() {
     botonGuardar.setAttribute("type", "button");
     botonGuardar.classList.add("cargar");
     botonGuardar.textContent = "Centralizar Datos";
-    // botonGuardar.onclick = function() {
-    //     guardarDataEnDataLake();
-    // };
+    botonGuardar.onclick = function() {
+        CombinarDatosDataLake();
+    };
     modalGestionarData
 
     // Agregar el botón al modal

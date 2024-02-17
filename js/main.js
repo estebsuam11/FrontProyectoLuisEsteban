@@ -6,6 +6,8 @@ const listadoDepartamentos=['Ventas','Marketing','Recursos Humanos','SST']
 const listadoDeGraficos=["Barras","Torta","Rosquilla","Líneas"]
 
 
+
+
 function mostrarTabla() {
     var inputFile = document.getElementById("file-3");
     var botonCargar = document.getElementById("botonCargar");
@@ -103,7 +105,7 @@ async function guardarDataEnDataLake() {
         spinner.stop();
 
         const errorMessage = error.responseJSON?.error || 'Error desconocido';
-        console.error(errorMessage);
+        toastr.error(errorMessage );
     }
 }
 
@@ -375,7 +377,42 @@ function agregarBotonGuardarDatos() {
     botonGuardar.onclick = function() {
         guardarDataEnDataLake();
     };
-    var modalContainer = document.querySelector(".modal__container");
+    var modalContainer = document.getElementById("tablaContainer");
+    modalContainer.appendChild(botonGuardar);
+}
+
+function ResetearModalCargarDatos(){
+    var divContenedor = document.getElementById("tablaContainer");
+
+// Crear la tabla y asignarle el HTML
+var tabla = document.createElement("table");
+tabla.id = "tablaDatos";
+tabla.className = "display";
+tabla.setAttribute("cellspacing", "0");
+tabla.setAttribute("width", "100%");
+tabla.innerHTML = `
+    <thead></thead>
+    <tbody></tbody>
+`;
+divContenedor.appendChild(tabla);
+}
+
+function agregarBotonIrAtrasModalCargar() {
+    var botonGuardar = document.createElement("button");
+    botonGuardar.setAttribute("type", "button");
+    botonGuardar.classList.add("cargar");
+    botonGuardar.textContent = "Elegir otro archivo";
+    botonGuardar.onclick = function() {
+       
+        var cargarArchivoContainer = document.getElementById("cargarArchivoContainer");
+        tablaContainer
+        var  tablaContainer = document.getElementById("tablaContainer");
+        tablaContainer.innerHTML='';
+        tablaContainer.style.display="none";
+        ResetearModalCargarDatos();
+        cargarArchivoContainer.style.display = "block";
+    };
+    var modalContainer = document.getElementById("tablaContainer");
     modalContainer.appendChild(botonGuardar);
 }
 
@@ -388,7 +425,7 @@ function AgregarBotonPurificarDatos(){
         PurificarDatos();
     };
 
-    var modalContainer = document.querySelector(".modal__container");
+    var modalContainer = document.getElementById("tablaContainer");
     modalContainer.appendChild(botonPurificar);
 }
 
@@ -420,13 +457,14 @@ function MostrarDatos(){
             });
 
         var tabla = $('#tablaDatos').DataTable({
-            scrollX: true,
+            scrollX: "300px",
             scrollY: "300px",
   scrollCollapse: true,
         });
 
         agregarBotonGuardarDatos();
         AgregarBotonPurificarDatos();
+        agregarBotonIrAtrasModalCargar();
    // Habilitar la edición para la columna con la clase "editable"
    $('#tablaDatos').on('click', 'tr[contenteditable="true"]', function () {
         $(this).attr('contenteditable', 'true').focus();
