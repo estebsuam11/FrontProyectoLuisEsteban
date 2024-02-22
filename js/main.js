@@ -32,6 +32,7 @@ async function enviarArchivo() {
     var departamento = document.getElementById('departamento');
     formData.append('Archivo', archivoCapturado.files[0]);
     formData.append('Departamento', departamento.value);
+    const startTime = performance.now();
 
     $.ajax({
         url: 'https://localhost:7132/api/ETL/ProbarExtraccionExcel',
@@ -42,8 +43,12 @@ async function enviarArchivo() {
         beforeSend: function () {
             // Se ejecuta antes de enviar la solicitud
             spinner.spin(document.body);
+       
         },
         success: function (data) {
+            const endTime = performance.now();
+            const elapsedTime = endTime - startTime;
+            console.log(`La consulta tardó ${elapsedTime} milisegundos`);
             globalData.push(JSON.parse(data.objetoCreado));
             toastr.success("Data Extraida correctamente");
             var cargarArchivoContainer = document.getElementById("cargarArchivoContainer");
@@ -108,6 +113,32 @@ async function guardarDataEnDataLake() {
         toastr.error(errorMessage );
     }
 }
+
+
+async function GuardarDataCombinadaEnDataSet(datosCombinados) {
+    // Mostrar el spinner mientras se envía la solicitud
+    var spinner = new Spinner().spin(document.body);
+    try {
+        var response = await $.ajax({
+            url: 'https://localhost:7132/api/ETL/CargarDataCombinadaAlDataSet',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(datosCombinados),
+        });
+        // Oculta la rueda de carga aquí
+        spinner.stop();
+
+        toastr.success(response.message );
+
+    } catch (error) {
+        // Oculta la rueda de carga aquí
+        spinner.stop();
+
+        const errorMessage = error.responseJSON?.error || 'Error desconocido';
+        toastr.error(errorMessage );
+    }
+}
+
 
 async function ObtenerDataSetPordepartamento(departamento){
     var spinner = new Spinner().spin(document.body);

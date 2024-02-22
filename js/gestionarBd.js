@@ -48,7 +48,16 @@ function CombinarDatosDataLake(){
         let idsConDiscrepancias = discrepancias.map(obj => obj.id);
         MarcarDivErroneo(idsConDiscrepancias);
     }else{
-        console.log("bien");
+        let objetoCombinado = {
+            "datos": [],
+            "departamentoOrigen": DatosDataLake[0].departamentoOrigen
+          };
+          
+          // Recorrer el array de objetos y combinar los datos
+          DatosDataLake.forEach(objeto => {
+            objetoCombinado.datos.push(...objeto.datos);
+          });
+          GuardarDataCombinadaEnDataSet(objetoCombinado);
     }
 }
 
