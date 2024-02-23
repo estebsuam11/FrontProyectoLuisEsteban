@@ -1,5 +1,6 @@
 const dataSetDashboard=[];
 const globalData = []  ;
+const urlBackEnd="https://localhost:7132/api/ETL/"
 nombresColumnas=[];
 var DatosDataLake;
 const listadoDepartamentos=['Ventas','Marketing','Recursos Humanos','SST']
@@ -35,7 +36,7 @@ async function enviarArchivo() {
     const startTime = performance.now();
 
     $.ajax({
-        url: 'https://localhost:7132/api/ETL/ProbarExtraccionExcel',
+        url: urlBackEnd + "ProbarExtraccionExcel",
         type: 'POST',
         data: formData,
         contentType: false,
@@ -95,7 +96,7 @@ async function guardarDataEnDataLake() {
     extraerInformacionDataTable();
     try {
         var response = await $.ajax({
-            url: 'https://localhost:7132/api/ETL/CargarObjetos',
+            url: urlBackEnd + "CargarObjetos",
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(globalData[0]),
@@ -120,7 +121,7 @@ async function GuardarDataCombinadaEnDataSet(datosCombinados) {
     var spinner = new Spinner().spin(document.body);
     try {
         var response = await $.ajax({
-            url: 'https://localhost:7132/api/ETL/CargarDataCombinadaAlDataSet',
+            url: urlBackEnd + "CargarDataCombinadaAlDataSet",
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(datosCombinados),
@@ -145,7 +146,7 @@ async function ObtenerDataSetPordepartamento(departamento){
 
     try {
         var response = await $.ajax({
-            url: 'https://localhost:7132/api/ETL/ObtenerDataFinalDataSetPorDepartamento',
+            url: urlBackEnd + "ObtenerDataFinalDataSetPorDepartamento",
             type: 'GET',
             contentType: 'application/json',
             data:{codigoDepartamento: departamento },
@@ -171,7 +172,7 @@ async function ObtenerDataPorDepartamento() {
 
     try {
         var response = await $.ajax({
-            url: 'https://localhost:7132/api/ETL/ObtenerDataLakesPorDepartamento',
+            url: urlBackEnd + "ObtenerDataLakesPorDepartamento",
             type: 'GET',
             contentType: 'application/json',
             data:{codigoDepartamento: departamento },
