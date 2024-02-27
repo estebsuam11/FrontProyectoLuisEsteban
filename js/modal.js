@@ -55,14 +55,12 @@ function AbrirModalEditarGrafica(idGrafica) {
     $('#modalEditarGrafica').modal('show');
 }
 
-function AbrirModalEditarFiltro() {
-    // idGraficaAeditar = idGrafica;
-    // var datosGrafico = almacenamientoDatosEjesGraficos[idGrafica];
-    // let idSelects = ["selectXEditarGrafica", "selectYEditarGrafica"]
-    // AgregarNombresCamposASelect(idSelects);
-    // $('#colorPickerEditarGrafica').val(datosGrafico.colorElegido);
-    // $('#selectXEditarGrafica').val(datosGrafico.nombreCampoEjeX);
-    // $('#selectYEditarGrafica').val(datosGrafico.nombreCampoEjeY);
+function AbrirModalEditarFiltro(idFiltro) {
+   idFiltroAEditar=idFiltro;
+   let idSelects = ["selectEditarFiltro"]
+   VaciarSelects(idSelects);
+   AgregarNombresCamposASelect(idSelects);;
+    $('#selectEditarFiltro').val(datosGrafico.nombreCampoEjeY);
     $('#modalEditarFiltro').modal('show');
 }
 

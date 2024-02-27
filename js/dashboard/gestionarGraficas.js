@@ -44,7 +44,7 @@ var esAcumulador = $("#AcumuladorCheckboxEditar").is(":checked");
 
 function AplicarEdicionAFiltro() {
     let idContenedor = idGraficaAeditar.replace(/-canvas$/, '');
-    let campoFiltro= $('#selectCrearFiltro').val();
+    let campoFiltro= $('#selectEditarFiltro').val();
 
     RecrearCanvas(idGraficaAeditar, idContenedor)
     CerrarModalEditar();
@@ -103,6 +103,7 @@ function GuardarValoresEjeXYEjeY(
 var divAeliminar;
 var filtroAEliminar;
 var idGraficaAeditar;
+var idFiltroAEditar;
 
 function llenarSelectoFiltro(nombreColumna, selector) {
     var opcionesUnicas = new Set();
