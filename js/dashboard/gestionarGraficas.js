@@ -10,20 +10,20 @@ var almacenarFiltros = [];
 var almacenCamposUsadosEnFiltros = [];
 
 function CrearValoresEjes(nombreCampoEjeX, nombreCampoEjeY, acumular) {
-    var dataAUsar = hayFiltros
-        ? dataDataSetFiltrada
-        : dataSetDashboard[0];
+    var dataAUsar = hayFiltros ? dataDataSetFiltrada : dataSetDashboard[0];
     let totals = dataAUsar.reduce((acc, cur) => {
         let value = cur[nombreCampoEjeX];
-        if (acumular) {
         let yValue = parseFloat(cur[nombreCampoEjeY]);
+    
+        if (acumular && !isNaN(yValue)) {
             acc[value] = (acc[value] || 0) + yValue;
         } else {
             acc[value] = (acc[value] || 0) + 1;
         }
+    
         return acc;
     }, {});
-
+    
     return totals;
 }
 
@@ -40,6 +40,14 @@ var esAcumulador = $("#AcumuladorCheckboxEditar").is(":checked");
     CambiarValoresEjesGrafico(idGraficaAeditar, campoX, campoY, colorElegido,esAcumulador);
     RecrearCanvas(idGraficaAeditar, idContenedor)
     CerrarModalEditarGrafica();
+}
+
+function AplicarEdicionAFiltro() {
+    let idContenedor = idGraficaAeditar.replace(/-canvas$/, '');
+    let campoFiltro= $('#selectCrearFiltro').val();
+
+    RecrearCanvas(idGraficaAeditar, idContenedor)
+    CerrarModalEditar();
 }
 
 function CambiarValoresEjesGrafico(
@@ -164,7 +172,7 @@ function AgregarFiltroAlLienzo() {
         botonEditar.style.top = '5px'; 
         botonEditar.style.right = '40px'; 
         botonEditar.onclick = function () {
-            AbrirModalConfirmarEliminación(divContenedor);
+            AbrirModalEditarFiltro();
         };
         var selectContenidoFiltro = document.createElement('select');
         selectContenidoFiltro.id = "selectFiltro-" + nombreCampo;

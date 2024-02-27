@@ -40,13 +40,14 @@ function AbrirModalConfirmarEliminación(divContenedor) {
 }
 
 function CerrarModalConfirmarEliminacionGrafica(){
-    $('#modalConfirmarEliminacio').modal('show');
+    $('#modalConfirmarEliminacio').modal('hide');
 }
 
 function AbrirModalEditarGrafica(idGrafica) {
     idGraficaAeditar = idGrafica;
     var datosGrafico = almacenamientoDatosEjesGraficos[idGrafica];
     let idSelects = ["selectXEditarGrafica", "selectYEditarGrafica"]
+    VaciarSelects(idSelects);
     AgregarNombresCamposASelect(idSelects);
     $('#colorPickerEditarGrafica').val(datosGrafico.colorElegido);
     $('#selectXEditarGrafica').val(datosGrafico.nombreCampoEjeX);
@@ -54,9 +55,25 @@ function AbrirModalEditarGrafica(idGrafica) {
     $('#modalEditarGrafica').modal('show');
 }
 
+function AbrirModalEditarFiltro() {
+    // idGraficaAeditar = idGrafica;
+    // var datosGrafico = almacenamientoDatosEjesGraficos[idGrafica];
+    // let idSelects = ["selectXEditarGrafica", "selectYEditarGrafica"]
+    // AgregarNombresCamposASelect(idSelects);
+    // $('#colorPickerEditarGrafica').val(datosGrafico.colorElegido);
+    // $('#selectXEditarGrafica').val(datosGrafico.nombreCampoEjeX);
+    // $('#selectYEditarGrafica').val(datosGrafico.nombreCampoEjeY);
+    $('#modalEditarFiltro').modal('show');
+}
+
+
 function CerrarModalEditarGrafica() {
     idGraficaAeditar = null;
     $('#modalEditarGrafica').modal('hide');
+}
+
+function CerrarModalEditarFiltro() {;
+    $('#modalEditarFiltro').modal('hide');
 }
 
 function AbrirModalCrearFiltro() {
@@ -80,8 +97,22 @@ function CerrarModalConfirmarEliminacionFiltro(){
 
 $('#modalCrearFiltro').on('shown.bs.modal', function () {
     let idSelects = ["selectCrearFiltro"]
+    VaciarSelects(idSelects);
     AgregarNombresCamposASelect(idSelects);
 });
+
+$('#modalEditarFiltro').on('shown.bs.modal', function () {
+    let idSelects = ["selectEditarFiltro"]
+    VaciarSelects(idSelects);
+    AgregarNombresCamposASelect(idSelects);
+});
+ 
+function VaciarSelects(idSelects){
+    idSelects.forEach(id => {
+        var select = document.getElementById(id);
+        select.innerHTML = '';
+    });
+}
 
 $('#selectX, #selectY').change(function () {
     var selectedValue = $(this).val(); 
@@ -107,5 +138,6 @@ $('#selectX, #selectY').change(function () {
 
 $('#modalCrearGrafica').on('shown.bs.modal', function () {
     let idSelects = ["selectX", "selectY"]
+    VaciarSelects(idSelects);
     AgregarNombresCamposASelect(idSelects);
 });
