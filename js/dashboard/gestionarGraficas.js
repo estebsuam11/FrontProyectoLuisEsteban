@@ -172,9 +172,9 @@ function AgregarFiltroAlLienzo() {
         botonEditar.style.position = 'absolute';
         botonEditar.style.top = '5px'; 
         botonEditar.style.right = '40px'; 
-        botonEditar.onclick = function () {
-            AbrirModalEditarFiltro();
-        };
+        // botonEditar.onclick = function () {
+        //     AbrirModalEditarFiltro();
+        // };
         var selectContenidoFiltro = document.createElement('select');
         selectContenidoFiltro.id = "selectFiltro-" + nombreCampo;
         selectContenidoFiltro.multiple = true;

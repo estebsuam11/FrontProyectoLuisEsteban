@@ -123,8 +123,27 @@ function rellenarModalRegistros(){
     consultarDatosContainer.style.display = "none";
 
     agregarBotonCombinarDatos();
+    agregarBotonVolverGestionDataLake();
 }
 
+
+function rellenarModalDataSet(data){
+    RellenarModalDatosDataSet(data);
+    $('#tablaGestionarDatosDataSet').DataTable({
+        scrollCollapse: true,
+        scrollY: '200px',
+        scrollX:'100px'
+    });
+
+    let elementoCreado=document.getElementById("tablaGestionarDatosDataSet");
+    elementoCreado.style.border="solid";
+    elementoCreado.style.marginBottom="30px";
+    var consultarDatosContainer = document.getElementById("consultarDatosDataSetContainer");
+    consultarDatosContainer.style.display = "none";
+    document.getElementById("vistaGestionarDatosDataSet").style.display="block";
+
+    agregarBotonVolver();
+}
 function ConvertirTablasADataTables(listaIds){
     listaIds.forEach(idTabla=>{
         $('#tablaGestionarDatos-' + idTabla).DataTable({
@@ -144,14 +163,174 @@ function agregarBotonCombinarDatos() {
     var botonGuardar = document.createElement("button");
     botonGuardar.setAttribute("type", "button");
     botonGuardar.classList.add("cargar");
+    botonGuardar.id="botonGuardarDataLake"
     botonGuardar.textContent = "Centralizar Datos";
     botonGuardar.onclick = function() {
         CombinarDatosDataLake();
     };
-    modalGestionarData
+    
+    var botonVolver = document.createElement("button");
+    botonVolver.setAttribute("type", "button");
+    botonVolver.classList.add("cargar");
+    botonVolver.textContent = "Volver";
+    botonVolver.id="botonVolverDataLake"
+    botonVolver.onclick = function() {
+        VolerAtrasConsultaDataLake();
+    };
+    
 
     // Agregar el botón al modal
     var gestionarDatosContainer = document.getElementById("modalGestionarData");
 
     gestionarDatosContainer.appendChild(botonGuardar);
+    gestionarDatosContainer.appendChild(botonVolver);
+
+}
+
+function agregarBotonVolver() {
+    // Crear el botón
+    var botonVolver = document.createElement("button");
+    botonVolver.setAttribute("type", "button");
+    botonVolver.classList.add("cargar");
+    botonVolver.id="botonVolverDataSet"
+    botonVolver.textContent = "Volver";
+    botonVolver.onclick = function() {
+        VolerAtrasConsultaDataSet();
+    };
+
+    // Agregar el botón al modal
+    var gestionarDatosContainer = document.getElementById("modalGestionDataSets");
+
+    gestionarDatosContainer.appendChild(botonVolver);
+}
+
+function agregarBotonVolverGestionDataLake() {
+    // Crear el botón
+    var botonVolver = document.createElement("button");
+    botonVolver.setAttribute("type", "button");
+    botonVolver.classList.add("cargar");
+    botonVolver.id="botonVolverDataLake"
+    botonVolver.textContent = "Volver";
+    botonVolver.onclick = function() {
+        VolerAtrasConsultaDataSet();
+    };
+
+    // Agregar el botón al modal
+    var gestionarDatosContainer = document.getElementById("modalGestionDataSets");
+
+    gestionarDatosContainer.appendChild(botonVolver);
+}
+
+function agregarBotonCargarOtroArchivo() {
+    // Crear el botón
+    var botonVolver = document.createElement("button");
+    botonVolver.setAttribute("type", "button");
+    botonVolver.classList.add("cargar");
+    botonVolver.id="botonCargarOtroArchivo"
+    botonVolver.textContent = "Volver";
+    botonVolver.onclick = function() {
+        VolerAtrasCargarArchivo();
+    };
+
+    // Agregar el botón al modal
+    var gestionarDatosContainer = document.getElementById("tablaContainer");
+
+    gestionarDatosContainer.appendChild(botonVolver);
+}
+
+function VolerAtrasCargarArchivo(){
+    var gestionarDatosContainer = document.getElementById("contenedorModalCargarDatos");
+var botonEliminar = gestionarDatosContainer.querySelector("#botonCargarOtroArchivo");
+var vistaTabla = document.getElementById("tablaContainer");
+vistaTabla.innerHTML='';
+var tablaDatos = document.createElement("table");
+tablaDatos.id = "tablaDatos";
+tablaDatos.className = "display";
+tablaDatos.setAttribute("cellspacing", "0");
+tablaDatos.setAttribute("width", "100%");
+
+var thead = document.createElement("thead");
+tablaDatos.appendChild(thead);
+
+var tbody = document.createElement("tbody");
+tablaDatos.appendChild(tbody);
+
+vistaTabla.appendChild(tablaDatos);
+
+if (botonEliminar) {
+    botonEliminar.remove();
+}
+
+    vistaTabla.style.direction="none";
+    var consultarDatosContainer = document.getElementById("cargarArchivoContainer");
+    consultarDatosContainer.style.display = "block";
+
+    gestionarDatosContainer.style='';
+}
+
+function VolerAtrasConsultaDataSet(){
+    var gestionarDatosContainer = document.getElementById("modalGestionDataSets");
+var botonEliminar = gestionarDatosContainer.querySelector("#botonVolverDataSet");
+var vistaTabla=document.getElementById("vistaGestionarDatosDataSet");
+if (botonEliminar) {
+    botonEliminar.remove();
+}
+    vistaTabla.innerHTML='';
+    vistaTabla.style.direction="none";
+    var consultarDatosContainer = document.getElementById("consultarDatosDataSetContainer");
+    consultarDatosContainer.style.display = "block";
+}
+
+
+function VolerAtrasConsultaDataLake(){
+    var gestionarDatosContainer = document.getElementById("modalGestionarData");
+var botonEliminar = gestionarDatosContainer.querySelector("#botonVolverDataLake");
+var botonGuardar = gestionarDatosContainer.querySelector("#botonGuardarDataLake");
+
+var vistaTabla=document.getElementById("vistaGestionarDatos");
+if (botonEliminar) {
+    botonEliminar.remove();
+}
+if (botonGuardar) {
+    botonGuardar.remove();
+}
+var botonCargar = document.getElementById("botonConsultarDatos");
+botonCargar.disabled=false;
+    vistaTabla.innerHTML='';
+    vistaTabla.style.direction="none";
+    var consultarDatosContainer = document.getElementById("consultarDatosContainer");
+    consultarDatosContainer.style.display = "block";
+}
+
+function RellenarModalDatosDataSet(data){
+    var tabla = document.createElement("table");
+    var tablaId = "tablaGestionarDatosDataSet"; 
+    tabla.id = tablaId;
+    tabla.className = "display"; 
+    tabla.setAttribute("cellspacing", "0");
+    tabla.setAttribute("width", "100%");
+
+    var thead = document.createElement("thead");
+    var tbody = document.createElement("tbody");
+    tabla.appendChild(thead);
+    var filaCabecera=thead.insertRow();
+    var encabezados = CrearCabecerasTabla(Object.keys(data[0]),filaCabecera);
+    thead.appendChild(encabezados);
+    data.forEach(objetoDataLake => {
+        var row = document.createElement('tr');
+        Object.values(objetoDataLake).forEach(value => {
+            var cell = document.createElement('td');
+            cell.contentEditable = true;
+            cell.textContent = value;
+            row.append(cell);
+        });
+        tbody.append(row);
+    });
+
+    tabla.appendChild(tbody);
+
+  document.getElementById("vistaGestionarDatosDataSet").appendChild(tabla);
+  document.getElementById("vistaGestionarDatosDataSet").style.overflowY = "auto"; 
+    var consultarDatosContainer = document.getElementById("consultarDatosDataSetContainer");
+    consultarDatosContainer.style.display = "none";
 }

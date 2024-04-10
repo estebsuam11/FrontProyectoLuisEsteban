@@ -42,7 +42,6 @@ async function enviarArchivo() {
         contentType: false,
         processData: false,
         beforeSend: function () {
-            // Se ejecuta antes de enviar la solicitud
             spinner.spin(document.body);
        
         },
@@ -59,17 +58,13 @@ async function enviarArchivo() {
         },
         error: function (error) {
             console.error('Error al enviar el archivo', error.responseText);
-
-            // Verificar si el código de estado es 412 (Precondition Failed)
             if (error.status === 412) {
-                // Mostrar un toast de error utilizando Toastr
                 toastr.error(error.responseJSON.error);
             }
             spinner.stop();
 
         },
         complete: function () {
-            // Se ejecuta después de que se completa la solicitud (éxito o error)
             spinner.stop();
         }
     });
@@ -91,7 +86,6 @@ function PurificarDatos() {
   
 
 async function guardarDataEnDataLake() {
-    // Mostrar el spinner mientras se envía la solicitud
     var spinner = new Spinner().spin(document.body);
     extraerInformacionDataTable();
     try {
@@ -101,15 +95,13 @@ async function guardarDataEnDataLake() {
             contentType: 'application/json',
             data: JSON.stringify(globalData[0]),
         });
-        // Oculta la rueda de carga aquí
+
         spinner.stop();
 
         toastr.success(response.message );
 
     } catch (error) {
-        // Oculta la rueda de carga aquí
         spinner.stop();
-
         const errorMessage = error.responseJSON?.error || 'Error desconocido';
         toastr.error(errorMessage );
     }
@@ -117,7 +109,6 @@ async function guardarDataEnDataLake() {
 
 
 async function GuardarDataCombinadaEnDataSet(datosCombinados) {
-    // Mostrar el spinner mientras se envía la solicitud
     var spinner = new Spinner().spin(document.body);
     try {
         var response = await $.ajax({
@@ -126,13 +117,11 @@ async function GuardarDataCombinadaEnDataSet(datosCombinados) {
             contentType: 'application/json',
             data: JSON.stringify(datosCombinados),
         });
-        // Oculta la rueda de carga aquí
         spinner.stop();
 
         toastr.success(response.message );
 
     } catch (error) {
-        // Oculta la rueda de carga aquí
         spinner.stop();
 
         const errorMessage = error.responseJSON?.error || 'Error desconocido';
@@ -157,7 +146,28 @@ async function ObtenerDataSetPordepartamento(departamento){
         AgregarLienzoADashboard();
         toastr.success("Dataset para el departamento de"+" "+departamento+" "+"encontrado satisfactoriamente");
     } catch (error) {
-        // Oculta la rueda de carga aquí
+        spinner.stop();
+
+        const errorMessage = error.responseJSON?.error || 'Error desconocido';
+        toastr.error(errorMessage);
+    }
+}
+
+async function ObtenerDataSetGridPordepartamento(departamento){
+    var spinner = new Spinner().spin(document.body);
+    var departamento = document.getElementById('departamentoDataSet').value;
+
+    try {
+        var response = await $.ajax({
+            url: urlBackEnd + "ObtenerDataFinalDataSetPorDepartamento",
+            type: 'GET',
+            contentType: 'application/json',
+            data:{codigoDepartamento: departamento },
+        });
+        spinner.stop();
+        toastr.success("Dataset para el departamento de"+" "+departamento+" "+"encontrado satisfactoriamente");
+        rellenarModalDataSet(response.datos);
+    } catch (error) {
         spinner.stop();
 
         const errorMessage = error.responseJSON?.error || 'Error desconocido';
@@ -166,7 +176,6 @@ async function ObtenerDataSetPordepartamento(departamento){
 }
 
 async function ObtenerDataPorDepartamento() {
-    // Mostrar el spinner mientras se envía la solicitud
     var spinner = new Spinner().spin(document.body);
     var departamento = document.getElementById('departamentoAGestionar').value;
 
@@ -182,7 +191,6 @@ async function ObtenerDataPorDepartamento() {
         toastr.success("Se ha realizado la consulta de los datos del departamento"+" "+departamento+" "+"satisfactoriamente");
 
     } catch (error) {
-        // Oculta la rueda de carga aquí
         spinner.stop();
 
         const errorMessage = error.responseJSON?.error || 'Error desconocido';
@@ -238,19 +246,11 @@ function dragEnterHandler(event) {
 function dragLeaveHandler(event) {
     event.preventDefault();
 }
-// Función para manejar el evento de soltar archivos
-// Función para manejar el evento de soltar archivos
 function dropHandler(event) {
     event.preventDefault();
-    
-    // Obtener el archivo del evento de arrastre
     const file = event.dataTransfer.files[0];
-    
-    // Asignar el archivo al input file
     const inputFile = document.getElementById('file-3');
     inputFile.files = event.dataTransfer.files;
-    
-    // Mostrar el nombre del archivo en el span
     const fileNameSpan = document.querySelector('#nombreArchivo');
 fileNameSpan.textContent = file.name;
 
@@ -286,12 +286,8 @@ function CargarTableroVacio() {
 
     var texto = document.createElement("span");
     texto.innerHTML = "Añadir Gráfico";
-
-    // Se crea un contenedor div para el texto
     var divTexto = document.createElement("div");
     divTexto.appendChild(texto);
-
-    // Se añade el contenedor div del texto al botón
     button.appendChild(divTexto);
 
     divCuerpoPagina.appendChild(button);
@@ -304,17 +300,12 @@ function CargarVistaParcialListaGraficos(event){
     event.preventDefault(); 
     var divEnlacesEditables = document.getElementById('cuerpoPagina');
 divEnlacesEditables.style.opacity = 0;
-
-    // Espera un breve momento para que la animación se inicie
     setTimeout(function() {
-        // Elimina todos los elementos hijos del contenedor de enlaces
         divEnlacesEditables.innerHTML = '';
         var contenedorDashboard = document.createElement("div");
 contenedorDashboard.setAttribute("id", "contenedorDashboard");
 contenedorDashboard.style.paddingTop = "20px";
 contenedorDashboard.classList.add("mi-opfavo");
-
-// Crear el elemento div enlacesEditables
 var enlacesEditables = document.createElement("div");
 
 enlacesEditables.setAttribute("id", "enlacesEditables");
@@ -325,10 +316,7 @@ listadoDeGraficos.forEach(nombre=>{
     enlacesEditables.appendChild(nuevoGrupo);
     
     });
-// Agregar el elemento enlacesEditables como hijo de contenedorDashboard
 contenedorDashboard.appendChild(enlacesEditables);
-
-// Agregar contenedorDashboard al divEnlacesEditables
 divEnlacesEditables.appendChild(contenedorDashboard);
 
     
@@ -339,10 +327,7 @@ divEnlacesEditables.appendChild(contenedorDashboard);
 function CargarVistaParcialListaDepartamentos(){
 var divEnlacesEditables = document.getElementById('enlacesEditables');
 divEnlacesEditables.style.opacity = 0;
-
-    // Espera un breve momento para que la animación se inicie
     setTimeout(function() {
-        // Elimina todos los elementos hijos del contenedor de enlaces
         divEnlacesEditables.innerHTML = '';
 
         listadoDepartamentos.forEach(nombre=>{
@@ -377,28 +362,18 @@ nuevoGrupo.appendChild(nuevoEnlace);
 return nuevoGrupo;
 }
 
- 
-
-
 function dragOverHandler(event) {
-    event.preventDefault(); // Detener el comportamiento predeterminado del navegador
+    event.preventDefault(); 
 }
 
 var dropZone = document.getElementById('dropZone');
 dropZone.addEventListener('dragover', dragOverHandler);
 dropZone.addEventListener('drop', dropHandler);
 
-
-
-
-
 function ajustarModal() {
-    // Obtener el contenedor modal
     var modalContainer = document.querySelector(".modal__container");
-
-    // Aplicar el tamaño fijo al contenedor modal
-    modalContainer.style.width = "80%"; // Por ejemplo, ajusta el ancho según tu preferencia
-    modalContainer.style.height = "70%"; // Por ejemplo, ajusta la altura según tu preferencia
+    modalContainer.style.width = "80%"; 
+    modalContainer.style.height = "70%";
 }
 
 function agregarBotonGuardarDatos() {
@@ -415,8 +390,6 @@ function agregarBotonGuardarDatos() {
 
 function ResetearModalCargarDatos(){
     var divContenedor = document.getElementById("tablaContainer");
-
-// Crear la tabla y asignarle el HTML
 var tabla = document.createElement("table");
 tabla.id = "tablaDatos";
 tabla.className = "display";
@@ -462,29 +435,24 @@ function AgregarBotonPurificarDatos(){
 }
 
 function MostrarDatos(){
-        // Obtén la tabla y el cuerpo de la tabla
         var tabla = $('#tablaDatos');
         var llaves = Object.keys(globalData[0].Datos[0]);
         var filaCabecera = tabla[0].tHead.insertRow();
 
-        // Itera sobre las llaves e agrega celdas a la fila de cabecera
         llaves.forEach(function(llave) {
           var celda = document.createElement('td');
           celda.textContent = llave;
           filaCabecera.appendChild(celda);
         });
-        // Llena la tabla con los datos
         $.each(globalData[0].Datos, function (index, rowData) {
                 var row = $('<tr>');
-                
-                // Iterar sobre las propiedades de cada objeto y agregar celdas a la fila
+        
                 for (var key in rowData) {
                     if (rowData.hasOwnProperty(key)) {
                         row.append($('<td contenteditable="true">').text(rowData[key]));
                     }
                 }
-                
-                // Agregar la fila a la tabla
+        
                 tabla.append(row);
             });
 
@@ -495,18 +463,13 @@ function MostrarDatos(){
         });
 
         agregarBotonGuardarDatos();
-        AgregarBotonPurificarDatos();
-        agregarBotonIrAtrasModalCargar();
-   // Habilitar la edición para la columna con la clase "editable"
+        // AgregarBotonPurificarDatos();
+        agregarBotonCargarOtroArchivo();
    $('#tablaDatos').on('click', 'tr[contenteditable="true"]', function () {
         $(this).attr('contenteditable', 'true').focus();
       });
-
- // Deshabilitar la edición al hacer clic fuera de la celda
  $('#tablaDatos').on('blur', 'td[contenteditable="true"]', function() {
         $(this).attr('contenteditable', 'false');
-        // Aquí puedes agregar lógica para guardar los cambios en tu backend
-        // Puedes acceder al valor modificado usando $(this).text()
       });
 
       };
@@ -516,29 +479,17 @@ function MostrarDatos(){
       function GestionarRegistrosDataWareHouse(opcion) {
         const contenidoDerecha = document.getElementById('opfavo');
     
-        // Limpiar el contenido anterior si es necesario
         contenidoDerecha.innerHTML = '';
     
-        // Lógica para cargar el contenido según la opción seleccionada
         if (opcion === 'opcion1') {
             contenidoDerecha.innerHTML = '<p>Contenido para la opción 1</p>';
         } else if (opcion === 'opcion2') {
             contenidoDerecha.innerHTML = '<p>Contenido para la opción 2</p>';
         }
-        // Añade más casos según tus necesidades
     
-        // Evita que el enlace redireccione a otra página
         return false;
     }
 
-// TABLA
-
-
-
-    //FUNCION SUBIR ARCHIVOS
-
-
-//SUBIR ARCHIVO
 
 'use strict';
 

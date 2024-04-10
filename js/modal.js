@@ -1,29 +1,72 @@
 function AbrirModal() {
     const modal = document.getElementById('modalCargarDatos');
     if (modal) {
+        var select=document.getElementById("departamento");
+        listadoDepartamentos.forEach(departamento => {
+            const option = document.createElement("option");
+            option.text = departamento;
+            option.value=departamento.toLowerCase();
+            select.add(option);
+          });
         modal.classList.add('modal--show');
-    }
-}
-
-function AbrirModalGestionBd() {
-    const modal = document.getElementById('modalGestionBd');
-    if (modal) {
-        modal.classList.add('modal--show');
-    }
-}
-function CerrarModalGestionBd() {
-    const modal = document.getElementById('modalGestionBd');
-    if (modal) {
-        modal.classList.remove('modal--show');
     }
 }
 
 function CerrarModal() {
     const modal = document.getElementById('modalCargarDatos');
     if (modal) {
+        var select=document.getElementById("departamento");
+        select.innerHTML='';
         modal.classList.remove('modal--show');
     }
 }
+
+function AbrirModalGestionBd() {
+    const modal = document.getElementById('modalGestionBd');
+    if (modal) {
+        var select=document.getElementById("departamentoAGestionar");
+        listadoDepartamentos.forEach(departamento => {
+            const option = document.createElement("option");
+            option.text = departamento;
+            option.value=departamento.toLowerCase();
+            select.add(option);
+          });
+        modal.classList.add('modal--show');
+    }
+}
+function CerrarModalGestionBd() {
+    const modal = document.getElementById('modalGestionBd');
+    if (modal) {
+        var select=document.getElementById("departamentoAGestionar");
+        select.innerHTML='';
+        modal.classList.remove('modal--show');
+    }
+}
+
+function AbrirModalGestionDataSet() {
+    const modal = document.getElementById('modalGestionDataSet');
+    if (modal) {
+        var select=document.getElementById("departamentoDataSet");
+        listadoDepartamentos.forEach(departamento => {
+            const option = document.createElement("option");
+            option.text = departamento;
+            option.value=departamento.toLowerCase();
+            select.add(option);
+          });
+        modal.classList.add('modal--show');
+    }
+}
+
+function CerrarModalGestionDataSet() {
+    const modal = document.getElementById('modalGestionDataSet');
+    if (modal) {
+        var select=document.getElementById("departamentoDataSet");
+        select.innerHTML='';
+        modal.classList.remove('modal--show');
+    }
+}
+
+
 
 function AbrirModalCrearGrafico(tipoGrafico) {
     almacenTipoGrafico = tipoGrafico;

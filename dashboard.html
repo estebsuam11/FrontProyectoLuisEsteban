@@ -79,7 +79,7 @@
         </a>
       </div>
       <div class="grupo">
-        <a href="#">
+        <a href="#" onclick="AbrirModalGestionDataSet()">
             <svg class="estiloSvg" width="130px" height="130px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17Z" fill="#000000"></path><path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="#000000" stroke-linejoin="round" stroke-width="2"></path><path d="M12 14C12 13.8333 12 13.6667 12 13.5C12 13.5 12 12 14 11C16 10 15.5 7 12.5 7C9.5 7 9.5 9.5 9.5 9.5V10" stroke="#000000" stroke-width="2"></path></g></svg>            <div class="enlace">
                 <span class="titulo-enlace">Ver DataSet por departamento</span>
                 <span class="descripcion-enlace">Data centralizada por cada departamento.</span>
@@ -117,8 +117,6 @@
             </div>
             <label class="custom-select">
                 <select style="text-align: center;" name="departamento" id="departamento">
-                    <option value="ventas">Ventas</option>
-                    <option value="marketing">Marketing</option>
                 </select>
             </label>
             <button type="button" class="cargar" hidden id="botonCargar" onclick="enviarArchivo()">CARGAR ARCHIVOS</button>
@@ -147,15 +145,29 @@
             </div>
             <label class="custom-select">
                 <select style="text-align: center;" name="departamento" id="departamentoAGestionar">
-                    <option value="ventas">Ventas</option>
-                    <option value="marketing">Marketing</option>
                 </select>
             </label>
-            <button type="button" class="cargar"  id="botonConsultarDatos" onclick="ObtenerDataPorDepartamento()">CARGAR ARCHIVOS</button>
+            <button type="button" class="cargar"  id="botonConsultarDatos" onclick="ObtenerDataPorDepartamento()">Consultar</button>
         </div>
         <div id="vistaGestionarDatos" style="display: none;">
         </div>
     </div>
+</section>
+
+
+<section id="modalGestionDataSet" class="modalGeneral">
+  <div class="modal__container" id="modalGestionDataSets">
+      <button id="cerrar" onclick="CerrarModalGestionDataSet()" class="modal__close"></button>
+      <div class="contact-form" id="consultarDatosDataSetContainer">
+          <label class="custom-select">
+              <select style="text-align: center;" name="departamento" id="departamentoDataSet">
+              </select>
+          </label>
+          <button type="button" class="cargar"  id="botonConsultarDatos" onclick="ObtenerDataSetGridPordepartamento()">Consultar Data Set </button>
+      </div>
+      <div id="vistaGestionarDatosDataSet" style="display: none;">
+      </div>
+  </div>
 </section>
 
 <!-- Modal -->
