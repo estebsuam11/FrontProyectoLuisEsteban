@@ -29,7 +29,7 @@ function crearTablasGestion(id, DatosDataLake) {
     deleteButton.className = 'delete-button';
     deleteButton.innerHTML = '<i class="fa fa-trash"></i>'; 
     deleteButton.addEventListener('click', function() {
-        EliminarRegistroPorId(id);
+        EliminarRegistroDataLake(id);
     });
     deleteButton.style.fontSize = '20px';
     deleteButton.style.color = 'red';
@@ -51,7 +51,6 @@ function EliminarRegistroDataLake(id) {
 
         document.getElementById('confirmarEliminar').addEventListener('click', function() {
             EliminarRegistroPorId(id);
-            // vista.removeChild(elemento);
             modal.hide();
         });
     }
@@ -140,7 +139,7 @@ function rellenarModalRegistros(){
     consultarDatosContainer.style.display = "none";
 
     agregarBotonCombinarDatos();
-    agregarBotonVolverGestionDataLake();
+    // agregarBotonVolverGestionDataLake();
 }
 
 
@@ -222,7 +221,7 @@ function agregarBotonVolverGestionDataLake() {
     botonVolver.onclick = function() {
         VolerAtrasConsultaDataSet();
     };
-    var gestionarDatosContainer = document.getElementById("modalGestionDataSets");
+    var gestionarDatosContainer = document.getElementById("modalGestionarData");
 
     gestionarDatosContainer.appendChild(botonVolver);
 }
