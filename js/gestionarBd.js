@@ -73,6 +73,7 @@ function CombinarDatosDataLake(){
           DatosDataLake.forEach(objeto => {
             objetoCombinado.datos.push(...objeto.datos);
           });
+   
           GuardarDataCombinadaEnDataSet(objetoCombinado);
     }
 }

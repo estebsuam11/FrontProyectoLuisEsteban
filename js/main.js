@@ -70,12 +70,12 @@ async function enviarArchivo() {
 
 
 function PurificarDatos() {
-    var datosAntes = globalData[0].Datos.length;
-    datosLimpios = globalData[0].Datos.filter(registro => {
+    var datosAntes = globalData.Datos.length;
+    datosLimpios = globalData.Datos.filter(registro => {
         return !Object
             .values(registro)
-            .some(value => value === null || value === "" || value === undefined);
-    });
+            .some(value => value === null || value === "" || value === undefined ||  isNaN(value));
+    });    
     globalData[0].Datos.length = 0;
     globalData[0].Datos=datosLimpios;
     var registrosEliminados = datosAntes - globalData[0].Datos.length;
@@ -86,6 +86,7 @@ function PurificarDatos() {
 async function guardarDataEnDataLake() {
     var spinner = new Spinner().spin(document.body);
     extraerInformacionDataTable();
+    // PurificarDatos();
     try {
         var response = await $.ajax({
             url: urlBackEnd + "CargarObjetos",
@@ -268,7 +269,7 @@ datosTabla.forEach(function (fila) {
     Datos.push(filaObj);
 });
 
-globalData.Datos=Datos;
+globalData[0].Datos=Datos;
 }
 
 function dragEnterHandler(event) {
@@ -466,45 +467,56 @@ function AgregarBotonPurificarDatos(){
     modalContainer.appendChild(botonPurificar);
 }
 
-function MostrarDatos(){
-        var tabla = $('#tablaDatos');
-        var llaves = Object.keys(globalData[0].Datos[0]);
-        var filaCabecera = tabla[0].tHead.insertRow();
+function MostrarDatos() {
+    var tabla = $('#tablaDatos');
+    var objetoMasLlaves = globalData[0].Datos.reduce((obj1, obj2) => {
+        return Object.keys(obj1).length > Object.keys(obj2).length ? obj1 : obj2;
+    });
+
+    var llaves = Object.keys(objetoMasLlaves);
+
+    console.log(objetoMasLlaves);
+
+    var filaCabecera = tabla[0].tHead.insertRow();
+
+    llaves.forEach(function(llave) {
+        var celda = document.createElement('td');
+        celda.textContent = llave;
+        filaCabecera.appendChild(celda);
+    });
+
+    var datosFiltrados = globalData[0].Datos.filter(objeto => {
+        return Object.keys(objeto).length === llaves.length;
+    });
+
+    $.each(datosFiltrados, function(index, rowData) {
+        var row = $('<tr>');
 
         llaves.forEach(function(llave) {
-          var celda = document.createElement('td');
-          celda.textContent = llave;
-          filaCabecera.appendChild(celda);
-        });
-        $.each(globalData[0].Datos, function (index, rowData) {
-                var row = $('<tr>');
-        
-                for (var key in rowData) {
-                    if (rowData.hasOwnProperty(key)) {
-                        row.append($('<td contenteditable="true">').text(rowData[key]));
-                    }
-                }
-        
-                tabla.append(row);
-            });
-
-        var tabla = $('#tablaDatos').DataTable({
-            scrollX: "300px",
-            scrollY: "300px",
-  scrollCollapse: true,
+            var cellValue = rowData.hasOwnProperty(llave) ? rowData[llave] : "NaN";
+            row.append($('<td contenteditable="true">').text(cellValue));
         });
 
-        agregarBotonGuardarDatos();
-        // AgregarBotonPurificarDatos();
-        agregarBotonCargarOtroArchivo();
-   $('#tablaDatos').on('click', 'tr[contenteditable="true"]', function () {
+        tabla.append(row);
+    });
+
+    var tablaDataTable = $('#tablaDatos').DataTable({
+        scrollX: "300px",
+        scrollY: "300px",
+        scrollCollapse: true,
+    });
+
+    agregarBotonGuardarDatos();
+    // AgregarBotonPurificarDatos();
+    agregarBotonCargarOtroArchivo();
+    $('#tablaDatos').on('click', 'tr[contenteditable="true"]', function() {
         $(this).attr('contenteditable', 'true').focus();
-      });
- $('#tablaDatos').on('blur', 'td[contenteditable="true"]', function() {
+    });
+    $('#tablaDatos').on('blur', 'td[contenteditable="true"]', function() {
         $(this).attr('contenteditable', 'false');
-      });
+    });
+};
 
-      };
 
       
     
