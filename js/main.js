@@ -20,12 +20,10 @@ function mostrarTabla() {
         botonCargar.disabled = true;
     }
     
-    // Mostrar el contenedor de la tabla y ocultar el contenedor de carga de archivos
     tablaContainer.style.display = "block";
 }
 
 async function enviarArchivo() {
-    // Mostrar el spinner mientras se envía la solicitud
     var spinner = new Spinner().spin(document.body);
 
     var formData = new FormData();
@@ -175,6 +173,40 @@ async function ObtenerDataSetGridPordepartamento(departamento){
     }
 }
 
+async function EliminarRegistroPorId(id) {
+    var spinner = new Spinner().spin(document.body);
+
+    try {
+        var response = await $.ajax({
+            url:  urlBackEnd + "EliminarDataLakePorIdRegistro",
+            type: 'DELETE',
+            contentType: 'application/json',
+            data: JSON.stringify({ idDataLake: id }),
+        });
+
+        spinner.stop();
+
+        toastr.success(response.message );
+
+    } catch (error) {
+        spinner.stop();
+
+        const errorMessage = error.responseJSON?.error || 'Error desconocido';
+        toastr.error(errorMessage);
+    }
+
+    var vista = document.getElementById("vistaGestionarDatos");
+    var elemento = vista.querySelector("#" + "div_contenedor_tablaGestionarDatos-" + id);
+    if(elemento){
+        vista.removeChild(elemento);
+    }
+    DatosDataLake = DatosDataLake.filter(s => s.id !== id);
+    if (DatosDataLake.length === 0) {
+        VolerAtrasConsultaDataLake();
+    } 
+}
+
+
 async function ObtenerDataPorDepartamento() {
     var spinner = new Spinner().spin(document.body);
     var departamento = document.getElementById('departamentoAGestionar').value;
@@ -189,7 +221,13 @@ async function ObtenerDataPorDepartamento() {
         spinner.stop();
         DatosDataLake=response;
         toastr.success("Se ha realizado la consulta de los datos del departamento"+" "+departamento+" "+"satisfactoriamente");
-
+        var ids = DatosDataLake.map(function(objeto) {
+            return objeto.id;
+        });
+    
+           rellenarModalRegistros();
+           ConvertirTablasADataTables(ids);
+           mostrarGestionadorBd();
     } catch (error) {
         spinner.stop();
 
@@ -197,13 +235,7 @@ async function ObtenerDataPorDepartamento() {
         toastr.error(errorMessage);
     }
 
-    var ids = DatosDataLake.map(function(objeto) {
-        return objeto.id;
-    });
-
-       rellenarModalRegistros();
-       ConvertirTablasADataTables(ids);
-       mostrarGestionadorBd();
+  
 }
 
 

@@ -1,22 +1,19 @@
 function crearTablasGestion(id, DatosDataLake) {
+    var container = document.createElement("div");
+    container.className = "tabla-container";
+    container.id="div_contenedor_tablaGestionarDatos-" + id
     var tabla = document.createElement("table");
     var tablaId = "tablaGestionarDatos-" + id; 
     tabla.id = tablaId;
     tabla.className = "display"; 
-    // Agregar el atributo cellspacing="0" y width="100%"
     tabla.setAttribute("cellspacing", "0");
     tabla.setAttribute("width", "100%");
-
-    // Crear thead y tbody
     var thead = document.createElement("thead");
     var tbody = document.createElement("tbody");
     tabla.appendChild(thead);
-    // Crear cabeceras de la tabla y agregarlas a thead
     var filaCabecera=thead.insertRow();
     var encabezados = CrearCabecerasTabla(Object.keys(DatosDataLake[0]),filaCabecera);
     thead.appendChild(encabezados);
-
-    // Crear filas de datos y agregarlas a tbody
     DatosDataLake.forEach(objetoDataLake => {
         var row = document.createElement('tr');
         Object.values(objetoDataLake).forEach(value => {
@@ -27,19 +24,39 @@ function crearTablasGestion(id, DatosDataLake) {
         });
         tbody.append(row);
     });
-
-    // Agregar thead y tbody a la tabla
-
     tabla.appendChild(tbody);
+    var deleteButton = document.createElement('button');
+    deleteButton.className = 'delete-button';
+    deleteButton.innerHTML = '<i class="fa fa-trash"></i>'; 
+    deleteButton.addEventListener('click', function() {
+        EliminarRegistroPorId(id);
+    });
+    deleteButton.style.fontSize = '20px';
+    deleteButton.style.color = 'red';
 
-    // Agregar la tabla al contenedor deseado
-  document.getElementById("vistaGestionarDatos").appendChild(tabla);
-  document.getElementById("vistaGestionarDatos").style.overflowY = "auto"; 
-
-    // Ocultar el contenedor de carga de archivos
+    container.appendChild(deleteButton);
+    container.appendChild(tabla);
+    document.getElementById("vistaGestionarDatos").appendChild(container);
+    document.getElementById("vistaGestionarDatos").style.overflowY = "auto"; 
     var consultarDatosContainer = document.getElementById("consultarDatosContainer");
     consultarDatosContainer.style.display = "none";
 }
+
+function EliminarRegistroDataLake(id) {
+    var vista = document.getElementById("vistaGestionarDatos");
+    var elemento = vista.querySelector("#" + "div_contenedor_tablaGestionarDatos-" + id);
+    if (elemento) {
+        var modal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
+        modal.show();
+
+        document.getElementById('confirmarEliminar').addEventListener('click', function() {
+            EliminarRegistroPorId(id);
+            // vista.removeChild(elemento);
+            modal.hide();
+        });
+    }
+}
+
 
 function CombinarDatosDataLake(){
     var discrepancias=verificarColumnasElementosDataLake();
@@ -53,7 +70,6 @@ function CombinarDatosDataLake(){
             "departamentoOrigen": DatosDataLake[0].departamentoOrigen
           };
           
-          // Recorrer el array de objetos y combinar los datos
           DatosDataLake.forEach(objeto => {
             objetoCombinado.datos.push(...objeto.datos);
           });
@@ -159,7 +175,6 @@ function ConvertirTablasADataTables(listaIds){
 }
 
 function agregarBotonCombinarDatos() {
-    // Crear el botón
     var botonGuardar = document.createElement("button");
     botonGuardar.setAttribute("type", "button");
     botonGuardar.classList.add("cargar");
@@ -178,17 +193,12 @@ function agregarBotonCombinarDatos() {
         VolerAtrasConsultaDataLake();
     };
     
-
-    // Agregar el botón al modal
     var gestionarDatosContainer = document.getElementById("modalGestionarData");
-
     gestionarDatosContainer.appendChild(botonGuardar);
     gestionarDatosContainer.appendChild(botonVolver);
-
 }
 
 function agregarBotonVolver() {
-    // Crear el botón
     var botonVolver = document.createElement("button");
     botonVolver.setAttribute("type", "button");
     botonVolver.classList.add("cargar");
@@ -197,15 +207,12 @@ function agregarBotonVolver() {
     botonVolver.onclick = function() {
         VolerAtrasConsultaDataSet();
     };
-
-    // Agregar el botón al modal
     var gestionarDatosContainer = document.getElementById("modalGestionDataSets");
 
     gestionarDatosContainer.appendChild(botonVolver);
 }
 
 function agregarBotonVolverGestionDataLake() {
-    // Crear el botón
     var botonVolver = document.createElement("button");
     botonVolver.setAttribute("type", "button");
     botonVolver.classList.add("cargar");
@@ -214,15 +221,12 @@ function agregarBotonVolverGestionDataLake() {
     botonVolver.onclick = function() {
         VolerAtrasConsultaDataSet();
     };
-
-    // Agregar el botón al modal
     var gestionarDatosContainer = document.getElementById("modalGestionDataSets");
 
     gestionarDatosContainer.appendChild(botonVolver);
 }
 
 function agregarBotonCargarOtroArchivo() {
-    // Crear el botón
     var botonVolver = document.createElement("button");
     botonVolver.setAttribute("type", "button");
     botonVolver.classList.add("cargar");
@@ -231,10 +235,7 @@ function agregarBotonCargarOtroArchivo() {
     botonVolver.onclick = function() {
         VolerAtrasCargarArchivo();
     };
-
-    // Agregar el botón al modal
     var gestionarDatosContainer = document.getElementById("tablaContainer");
-
     gestionarDatosContainer.appendChild(botonVolver);
 }
 
